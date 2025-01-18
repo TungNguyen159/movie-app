@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:movie_app/Widgets/text_head.dart';
+import 'package:movie_app/Components/text_head.dart';
 
 class BookedScreen extends StatefulWidget {
   const BookedScreen({super.key});

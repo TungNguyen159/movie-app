@@ -6,6 +6,7 @@ class CustomDetail extends StatelessWidget {
   final AsyncSnapshot snapshot;
   @override
   Widget build(BuildContext context) {
+    final data = snapshot.data;
     return Stack(
       children: [
         SingleChildScrollView(
@@ -18,7 +19,7 @@ class CustomDetail extends StatelessWidget {
                   image: DecorationImage(
                     image: snapshot.data.posterPath.isNotEmpty
                         ? NetworkImage(
-                            '${ApiLink.imagePath}${snapshot.data.posterPath}')
+                            '${ApiLink.imagePath}${data.posterPath}')
                         : AssetImage(ImageApp.defaultImage),
                     fit: BoxFit.cover,
                   ),
@@ -39,8 +40,11 @@ class CustomDetail extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               TextHead(
-                                text: '${snapshot.data.originalTitle}',
+                                text: '${data.originalTitle}',
                                 maxLines: 2,
+                                textStyle: Theme.of(context).textTheme.titleLarge!.copyWith(
+                                  fontWeight: FontWeight.bold
+                                ),
                               ),
                               Gap.xsHeight,
                               Container(
@@ -57,7 +61,7 @@ class CustomDetail extends StatelessWidget {
                                   padding: const EdgeInsets.all(Gap.sm),
                                   child: TextHead(
                                     text:
-                                        'Release Date ${snapshot.data.releaseDate}',
+                                        'Release Date ${data.releaseDate}',
                                     textStyle: Theme.of(context)
                                         .textTheme
                                         .titleMedium!
@@ -73,7 +77,7 @@ class CustomDetail extends StatelessWidget {
                         Row(
                           children: [
                             TextHead(
-                              text: '${snapshot.data.voteAverage}',
+                              text: '${data.voteAverage}',
                               textStyle: Theme.of(context)
                                   .textTheme
                                   .titleMedium!

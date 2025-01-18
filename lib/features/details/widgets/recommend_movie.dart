@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:movie_app/detail.dart';
 
-
 class RecommendScreen extends StatelessWidget {
   const RecommendScreen({super.key, required this.snapshot});
   final AsyncSnapshot snapshot;
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: Gap.sM, horizontal: Gap.mL),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -23,7 +22,7 @@ class RecommendScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final movie = snapshot.data[index];
                       return Padding(
-                        padding: const EdgeInsets.only(right: 15),
+                        padding: const EdgeInsets.only(right: Gap.md),
                         child: InkWell(
                           onTap: () {
                             Modular.to.pushNamed("/main/detail/${movie.id}");
@@ -31,7 +30,7 @@ class RecommendScreen extends StatelessWidget {
                           child: Stack(
                             children: [
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: radius20,
                                 child: Container(
                                   height: 150,
                                   width: 200,
@@ -62,12 +61,14 @@ class RecommendScreen extends StatelessWidget {
                                             movie.originalTitle ??
                                                 "Unknown Title",
                                             maxLines: 1,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 16,
-                                              color: Colors.white,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onPrimary,
                                             ),
                                           ),
-                                          const SizedBox(height: 5),
+                                          Gap.xsHeight
                                         ],
                                       ),
                                     ),
@@ -80,11 +81,11 @@ class RecommendScreen extends StatelessWidget {
                       );
                     },
                   )
-                : const Center(
+                : Center(
                     child: Text(
                       "No recommend available",
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),

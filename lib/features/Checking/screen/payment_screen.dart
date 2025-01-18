@@ -1,14 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:movie_app/Widgets/app_button.dart';
-import 'package:movie_app/Widgets/back_button.dart';
-import 'package:movie_app/Widgets/text_head.dart';
-import 'package:movie_app/features/Checking/screen/Confirmation_screen.dart';
+import 'package:movie_app/Components/app_button.dart';
+import 'package:movie_app/Components/back_button.dart';
+import 'package:movie_app/Components/text_head.dart';
 import 'package:movie_app/features/Checking/widgets/billing_details.dart';
 import 'package:movie_app/features/Checking/widgets/payment_options.dart';
+import 'package:movie_app/models/seat.dart';
 
-class PaymentScreen extends StatelessWidget {
+class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});
+
+  @override
+  State<PaymentScreen> createState() => _PaymentScreenState();
+}
+
+class _PaymentScreenState extends State<PaymentScreen> {
+  late List<Seat> selectedSeat;
+  @override
+  void initState() {
+    super.initState();
+    selectedSeat = Modular.args.data['selectedSeat'];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +45,9 @@ class PaymentScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20)),
-                  child: const BillingDetails(),
+                  child: BillingDetails(
+                    selectedSeats: selectedSeat,
+                  ),
                 ),
               ),
 
@@ -59,8 +73,7 @@ class PaymentScreen extends StatelessWidget {
                 child: AppButton(
                   text: 'Pay',
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (ctx) => const ConfirmationScreen()));
+                    Modular.to.pushNamed("/main/detail/ticket/confirm");
                   },
                 ),
               ),
@@ -71,4 +84,3 @@ class PaymentScreen extends StatelessWidget {
     );
   }
 }
-

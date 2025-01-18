@@ -12,7 +12,7 @@ export 'package:movie_app/features/Tickets/ticket_module.dart';
 export 'package:movie_app/features/Tickets/ticket_route.dart';
 export 'package:movie_app/features/authentication/authen_module.dart';
 export 'package:movie_app/features/authentication/authen_route.dart';
-export 'package:movie_app/features/authentication/onboarding_screen.dart';
+export 'package:movie_app/features/authentication/screen/onboarding_screen.dart';
 export 'package:movie_app/features/authentication/splash_logic.dart';
 export 'package:movie_app/features/authentication/splash_module.dart';
 export 'package:movie_app/features/details/detail_controller.dart';

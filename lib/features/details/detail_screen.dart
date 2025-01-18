@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:movie_app/Widgets/back_button.dart';
+import 'package:movie_app/Components/back_button.dart';
 import 'package:movie_app/detail.dart';
+import 'package:movie_app/features/details/detail_controller.dart';
 
 class DetailScreen extends StatefulWidget {
   const DetailScreen({super.key, required this.movieId});
@@ -10,17 +11,17 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  late final Future<MovieDetail> movieDetails;
-  late final Future<Credits> movieCasts;
-  late final Future<List<Movies>> recommendMovies;
-  late final Future<List<dynamic>> movieVideos;
+  late final DetailController detailController;
+
   @override
   void initState() {
     super.initState();
-    movieDetails = ControllerApi().fetchMovieDetail(widget.movieId);
-    movieCasts = ControllerApi().fetchCasts(widget.movieId);
-    recommendMovies = ControllerApi().recommendMovie(widget.movieId);
-    movieVideos = ControllerApi().fetchVideos(widget.movieId);
+    final controllerApis =
+        Modular.get<ControllerApi>(); // Lấy controllerApi từ Modular
+    final movieId = widget.movieId; // Lấy movieId từ widget
+
+    detailController = DetailController(
+        controllerApis, movieId); // Khởi tạo detailController trong initState
   }
 
   @override
@@ -42,7 +43,7 @@ class _DetailScreenState extends State<DetailScreen> {
           children: [
             SizedBox(
               child: FutureBuilder(
-                future: movieDetails,
+                future: detailController.movieDetails,
                 builder: (ctx, snapshot) {
                   if (snapshot.hasError) {
                     return Center(
@@ -56,14 +57,15 @@ class _DetailScreenState extends State<DetailScreen> {
                   } else if (snapshot.hasData || snapshot.data != null) {
                     return CustomDetail(snapshot: snapshot);
                   } else {
-                    return const CircularProgressIndicator();
+                    return const Center(child: CircularProgressIndicator());
                   }
                 },
               ),
             ),
             SizedBox(
               child: ListDisplay<Cast>(
-                  listFuture: movieCasts.then((credits) => credits.cast),
+                  listFuture: detailController.movieCasts
+                      .then((credits) => credits.cast),
                   builder: (snapshot) {
                     return CastAndCrew(cast: snapshot.data!);
                   }),
@@ -76,7 +78,7 @@ class _DetailScreenState extends State<DetailScreen> {
             // ),
             SizedBox(
               child: ListDisplay(
-                  listFuture: recommendMovies,
+                  listFuture: detailController.recommendMovies,
                   builder: (snapshot) => RecommendScreen(snapshot: snapshot)),
             ),
             Padding(

@@ -17,16 +17,17 @@ class CustomCardThumbnail extends StatelessWidget {
       child: CarouselSlider.builder(
         itemCount: 10,
         itemBuilder: (context, index, pageViewIndex) {
+          final data = snapshot.data[index];
           return InkWell(
             onTap: () {
-              Modular.to.pushNamed("/main/detail/${snapshot.data[index].id}");
+              Modular.to.pushNamed("/main/detail/${data.id}");
             },
             child: Container(
               decoration: BoxDecoration(
                   borderRadius: radius20,
                   image: DecorationImage(
                       image: NetworkImage(
-                          "${ApiLink.imagePath}${snapshot.data[index].posterPath}"),
+                          "${ApiLink.imagePath}${data.posterPath}"),
                       fit: BoxFit.cover)),
               margin: const EdgeInsets.only(
                 left: 15,

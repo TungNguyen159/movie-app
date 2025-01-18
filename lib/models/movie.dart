@@ -10,9 +10,7 @@ class Movies {
   String? posterPath;
   String releaseDate;
   String title;
-  bool video;
   double voteAverage;
-  int voteCount;
 
   Movies({
     required this.adult,
@@ -26,9 +24,7 @@ class Movies {
     this.posterPath,
     required this.releaseDate,
     required this.title,
-    required this.video,
     required this.voteAverage,
-    required this.voteCount,
   });
   factory Movies.fromJson(Map<String, dynamic> json) => Movies(
         adult: json["adult"] ?? false,
@@ -44,9 +40,7 @@ class Movies {
         posterPath: json["poster_path"] ?? '',
         releaseDate: json["release_date"] ?? 'Unknown',
         title: json["title"] ?? 'Unknown',
-        video: json["video"] ?? false,
         voteAverage: json["vote_average"]?.toDouble() ?? 0.0,
-        voteCount: json["vote_count"] ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -61,8 +55,6 @@ class Movies {
         "poster_path": posterPath,
         "release_date": releaseDate,
         "title": title,
-        "video": video,
         "vote_average": voteAverage,
-        "vote_count": voteCount,
       };
 }

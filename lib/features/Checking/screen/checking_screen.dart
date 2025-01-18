@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:movie_app/Widgets/app_button.dart';
-import 'package:movie_app/Widgets/back_button.dart';
+import 'package:movie_app/Components/app_button.dart';
+import 'package:movie_app/Components/back_button.dart';
+import 'package:movie_app/Components/text_head.dart';
 import 'package:movie_app/config/api_handle.dart';
 import 'package:movie_app/config/api_link.dart';
 import 'package:movie_app/core/image/image_app.dart';
 import 'package:movie_app/core/theme/gap.dart';
-
-import 'package:movie_app/features/Checking/screen/payment_screen.dart';
 import 'package:movie_app/features/Checking/widgets/ticket_item.dart';
 import 'package:movie_app/models/movie_detail.dart';
+import 'package:movie_app/models/seat.dart';
 
 class CheckingScreen extends StatefulWidget {
   final Map movie;
@@ -26,10 +26,16 @@ class CheckingScreen extends StatefulWidget {
 
 class _CheckingScreenState extends State<CheckingScreen> {
   late final Future<MovieDetail> movieDetails;
+  late List<Seat> selectedSeat;
+  late String selectedDate;
+  late String selectedTime;
   @override
   void initState() {
     super.initState();
     movieDetails = ControllerApi().fetchMovieDetail(widget.movieId);
+    selectedSeat = Modular.args.data['selectedSeat'];
+    selectedDate = Modular.args.data['selectedDate'];
+    selectedTime = Modular.args.data['selectedTime'];
   }
 
   @override
@@ -37,7 +43,7 @@ class _CheckingScreenState extends State<CheckingScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        leading: BackBind(onPressed: (){
+        leading: BackBind(onPressed: () {
           Modular.to.pop();
         }),
         scrolledUnderElevation: 0,
@@ -83,27 +89,35 @@ class _CheckingScreenState extends State<CheckingScreen> {
                               String imageUrl = snapshot.data?.posterPath ?? '';
                               return Container(
                                 decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: imageUrl.isNotEmpty
-                                        ? NetworkImage(
-                                            '${ApiLink.imagePath}$imageUrl')
-                                        : AssetImage(ImageApp.defaultImage),
-                                    fit: BoxFit.cover,
-                                  ),
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(Gap.sM),
-                                    topRight: Radius.circular(Gap.sM)
-                                  )
-                                ),
+                                    image: DecorationImage(
+                                      image: imageUrl.isNotEmpty
+                                          ? NetworkImage(
+                                              '${ApiLink.imagePath}$imageUrl')
+                                          : AssetImage(ImageApp.defaultImage),
+                                      fit: BoxFit.cover,
+                                    ),
+                                    borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(Gap.sM),
+                                        topRight: Radius.circular(Gap.sM))),
                               );
                             }
                           },
                         ),
                       ),
                       Container(
-                        height: 20,
+                        height: 50,
                         width: double.maxFinite,
                         color: const Color.fromARGB(255, 252, 205, 212),
+                        child: Padding(
+                          padding: const EdgeInsets.all(Gap.sM),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextHead(text: selectedDate),
+                              TextHead(text: selectedTime),
+                            ],
+                          ),
+                        ),
                       ),
                       Container(
                         color: const Color.fromARGB(255, 252, 205, 212),
@@ -166,24 +180,34 @@ class _CheckingScreenState extends State<CheckingScreen> {
                       ),
                     ],
                   ),
-                  ...List.generate(6, (index) {
-                    return const TicketItem(
-                      seatNumber: '1112', // Example seat number
-                      price: 'Ugx 10000', // Example price
-                    );
-                  }),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: selectedSeat.length,
+                    itemBuilder: (ctx, index) {
+                      return TicketItem(
+                        seatNumber: selectedSeat[index].id,
+                        price: selectedSeat[index].price.toString(),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
           ),
           // Nút "Pay" nằm ở cuối màn hình, không bị cuộn
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Gap.mL, vertical: Gap.sM),
+            padding: const EdgeInsets.symmetric(
+                horizontal: Gap.mL, vertical: Gap.sM),
             child: AppButton(
               text: "Confirm",
               onPressed: () {
-                Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (ctx) => const PaymentScreen()));
+                Modular.to.pushNamed(
+                  "/main/detail/ticket/seat/payment",
+                  arguments: {
+                    "selectedSeat": selectedSeat,
+                  },
+                );
               },
             ),
           ),

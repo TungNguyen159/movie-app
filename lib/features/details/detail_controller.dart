@@ -6,13 +6,14 @@ import 'package:movie_app/models/movie_detail.dart';
 
 class DetailController extends Disposable {
   final ControllerApi controllerApis;
-  final int movieId;
+  int movieId;
   late final Future<MovieDetail> movieDetails;
   late final Future<Credits> movieCasts;
   late final Future<List<Movies>> recommendMovies;
   //late final Future<List<dynamic>> movieVideos;
 
   DetailController(this.controllerApis, this.movieId) {
+    movieId = movieId;
     movieDetails = controllerApis.fetchMovieDetail(movieId);
     movieCasts = controllerApis.fetchCasts(movieId);
     recommendMovies = controllerApis.recommendMovie(movieId);

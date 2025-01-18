@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:movie_app/Widgets/text_head.dart';
+import 'package:movie_app/Components/text_head.dart';
 import 'package:url_launcher/url_launcher.dart';
 //import 'package:vimeo_player_flutter/vimeo_player_flutter.dart';
 

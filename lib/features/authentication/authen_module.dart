@@ -1,5 +1,5 @@
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:movie_app/features/authentication/sign_in_screen.dart';
+import 'package:movie_app/features/authentication/screen/sign_in_screen.dart';
 import 'package:movie_app/router/main_route.dart';
 
 class AuthenModule extends Module {

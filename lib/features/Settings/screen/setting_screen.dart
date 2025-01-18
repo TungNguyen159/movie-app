@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:movie_app/Widgets/app_button.dart';
-import 'package:movie_app/Widgets/text_head.dart';
+import 'package:movie_app/Components/app_button.dart';
+import 'package:movie_app/Components/text_head.dart';
+import 'package:movie_app/core/theme/gap.dart';
 import 'package:movie_app/features/Settings/widgets/custom_profile.dart';
-
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -29,7 +29,8 @@ class _SettingScreenState extends State<SettingScreen> {
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+            padding: const EdgeInsets.only(
+                left: Gap.mL, right: Gap.mL, bottom: Gap.mL),
             child: Column(
               children: [
                 Column(
@@ -42,7 +43,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     Container(
                       alignment: Alignment.center,
-                      margin: const EdgeInsets.only(top: 14),
+                      margin: const EdgeInsets.only(top: Gap.sM),
                       height: 30,
                       width: 300,
                       child: TextHead(
@@ -55,11 +56,9 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 25,
-                ),
+                Gap.lgHeight,
                 const CustomProfile(),
-                const SizedBox(height: 29),
+                Gap.lXHeight,
                 Align(
                   alignment: Alignment.centerLeft,
                   child: TextHead(
@@ -70,7 +69,7 @@ class _SettingScreenState extends State<SettingScreen> {
                         .copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
-                const SizedBox(height: 20),
+                Gap.mLHeight,
                 Center(
                   child: SizedBox(
                     child: Column(
@@ -100,9 +99,9 @@ class _SettingScreenState extends State<SettingScreen> {
                             )
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        Gap.sMHeight,
                         Padding(
-                          padding: const EdgeInsets.only(right: 10),
+                          padding: const EdgeInsets.only(right: Gap.sM),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

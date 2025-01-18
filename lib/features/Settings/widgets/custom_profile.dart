@@ -72,6 +72,34 @@ class CustomProfile extends StatelessWidget {
               },
               child: Container(
                 decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Colors.grey),
+                    right: BorderSide(color: Colors.grey),
+                    left: BorderSide(color: Colors.grey),
+                  ),
+                ),
+                height: 55,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextHead(
+                        text: 'Notification',
+                        textStyle: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const Icon(Icons.arrow_right)
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                Modular.to.pushNamed("/main/setting/notification");
+              },
+              child: Container(
+                decoration: const BoxDecoration(
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(16),
                       bottomRight: Radius.circular(16)),
@@ -88,7 +116,7 @@ class CustomProfile extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       TextHead(
-                        text: 'Notification',
+                        text: 'Manage',
                         textStyle: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const Icon(Icons.arrow_right)

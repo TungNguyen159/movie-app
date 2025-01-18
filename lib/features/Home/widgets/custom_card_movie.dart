@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:movie_app/Widgets/text_head.dart';
+import 'package:movie_app/Components/text_head.dart';
 import 'package:movie_app/config/api_link.dart';
 import 'package:movie_app/core/theme/gap.dart';
 import 'package:movie_app/core/theme/radius.dart';
@@ -21,9 +21,10 @@ class CustomCardMovie extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: snapshot.data.length,
         itemBuilder: (context, index) {
+          final data = snapshot.data[index];
           return InkWell(
             onTap: () {
-              Modular.to.pushNamed("/main/detail/${snapshot.data[index].id}");
+              Modular.to.pushNamed("/main/detail/${data.id}");
             },
             child: Stack(
               children: [
@@ -36,7 +37,7 @@ class CustomCardMovie extends StatelessWidget {
                       borderRadius: radius20,
                       image: DecorationImage(
                         image: NetworkImage(
-                          "${ApiLink.imagePath}${snapshot.data[index].posterPath}",
+                          "${ApiLink.imagePath}${data.posterPath}",
                         ),
                         fit: BoxFit.cover,
                       ),
@@ -66,7 +67,7 @@ class CustomCardMovie extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             TextHead(
-                              text: snapshot.data[index].originalTitle,
+                              text: data.originalTitle,
                               maxLines: 1,
                               textStyle: Theme.of(context)
                                   .textTheme
@@ -82,8 +83,7 @@ class CustomCardMovie extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 TextHead(
-                                  text: snapshot.data[index].voteAverage
-                                      .toString(),
+                                  text: data.voteAverage.toString(),
                                   maxLines: 1,
                                   textStyle: Theme.of(context)
                                       .textTheme

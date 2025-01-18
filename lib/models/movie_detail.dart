@@ -21,9 +21,7 @@ class MovieDetail extends Movies {
     required super.popularity,
     required super.releaseDate,
     required super.title,
-    required super.video,
     required super.voteAverage,
-    required super.voteCount,
     required this.budget,
     required this.genres,
     required this.revenue,
@@ -56,14 +54,12 @@ class MovieDetail extends Movies {
       tagline: json['tagline'],
       title: json['title'] ?? 'Unknown',
       voteAverage: (json['vote_average'] as num?)?.toDouble() ?? 0.0,
-      voteCount: json['vote_count'] ?? 0,
       backdropPath: json['backdrop_path'] ?? '',
       genreIds: (json["genre_ids"] as List<dynamic>?)
               ?.map((x) => x as int)
               .toList() ??
           [],
       originalLanguage: json["original_language"] ?? 'Unknown',
-      video: json["video"] ?? false,
     );
   }
   Map<String, dynamic> toJson() {
@@ -84,9 +80,7 @@ class MovieDetail extends Movies {
       'status': status,
       'tagline': tagline,
       'title': title,
-      'video': video,
       'vote_average': voteAverage,
-      'vote_count': voteCount,
       'genre_ids': genreIds,
       'backdrop_path': backdropPath,
     };

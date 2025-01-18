@@ -1,7 +1,7 @@
 import 'dart:async'; // Để sử dụng debounce
 import 'package:flutter/material.dart';
-import 'package:movie_app/Widgets/list_display.dart';
-import 'package:movie_app/Widgets/text_head.dart';
+import 'package:movie_app/Components/list_display.dart';
+import 'package:movie_app/Components/text_head.dart';
 import 'package:movie_app/config/api_handle.dart';
 import 'package:movie_app/features/Search/widgets/custom_search.dart';
 import 'package:movie_app/features/Search/widgets/search_box.dart';

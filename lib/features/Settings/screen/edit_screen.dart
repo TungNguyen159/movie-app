@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:movie_app/Widgets/back_button.dart';
+import 'package:movie_app/Components/back_button.dart';
 
-import '../../../Widgets/app_button.dart';
+import '../../../Components/app_button.dart';
 
 class EditScreen extends StatefulWidget {
   const EditScreen({super.key});

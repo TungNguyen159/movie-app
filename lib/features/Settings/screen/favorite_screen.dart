@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:movie_app/Widgets/back_button.dart';
+import 'package:movie_app/Components/back_button.dart';
 
 class FavoriteScreen extends StatelessWidget {
   const FavoriteScreen({super.key});

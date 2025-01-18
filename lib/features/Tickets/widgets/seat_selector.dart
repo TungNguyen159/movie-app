@@ -1,129 +1,78 @@
 import 'package:flutter/material.dart';
-import 'package:movie_app/Widgets/text_head.dart';
+import 'package:movie_app/models/seat.dart';
 
-class SeatSelectionWidget extends StatelessWidget {
-  final int rows;
-  final int columns;
-  final List<Seat> selectedSeats; // Danh sách các ghế đã chọn
+class SeatBookingScreen extends StatefulWidget {
+  final Function(List<Seat>) onSeatSelected;
+  const SeatBookingScreen({super.key, required this.onSeatSelected});
 
-  const SeatSelectionWidget({
-    super.key,
-    required this.rows,
-    required this.columns,
-    required this.selectedSeats,
+  @override
+  State<SeatBookingScreen> createState() => _SeatBookingScreenState();
+}
+
+class _SeatBookingScreenState extends State<SeatBookingScreen> {
+  final List<Seat> seats = List.generate(49, (index) {
+    // Tạo danh sách ghế mẫu
+    // String status = index % 5 == 0
+    //     ? 'unavailable'
+    //     : (index % 2 == 0 ? 'booked' : 'available');
+    String status = index % 5 == 0 ? 'unavailable' : 'available';
+    return Seat(id: 'Seat ${index + 1}', status: status, price: 30);
   });
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: columns, // Số cột
-        childAspectRatio: 1, // Tỉ lệ ô vuông
-      ),
-      itemCount: rows * columns, // Tổng số ghế
-      itemBuilder: (context, index) {
-        final seatNumber = index + 1;
-        final isSelected = selectedSeats.any((seat) => seat.id == seatNumber);
-
-        return SeatWidget(
-          seatNumber: seatNumber,
-          isSelected: isSelected,
-        );
-      },
-    );
+  List<Seat> selectedSeat = [];
+  void selectSeat(int index) {
+    setState(() {
+      if (seats[index].status == 'available') {
+        if (selectedSeat.contains(seats[index])) {
+          selectedSeat.remove(seats[index]);
+        } else {
+          seats[index].status = 'booked'; // Đặt ghế
+          selectedSeat.add(seats[index]);
+          widget.onSeatSelected(selectedSeat);
+        }
+      } else if (seats[index].status == 'booked') {
+        seats[index].status = 'available'; // Hủy đặt ghế
+        selectedSeat.remove(seats[index]);
+        widget.onSeatSelected(selectedSeat);
+      }
+    });
   }
-}
-
-// Widget đại diện cho 1 ghế
-class SeatWidget extends StatelessWidget {
-  final int seatNumber;
-  final bool isSelected;
-
-  const SeatWidget({
-    super.key,
-    required this.seatNumber,
-    this.isSelected = false,
-  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color:
-            isSelected ? Colors.red : Colors.grey[300], // Đổi màu khi đã chọn
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.black, width: 0.5),
-      ),
-      child: Center(
-        child: Text(
-          seatNumber.toString(),
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Model cho ghế ngồi
-class Seat {
-  final int id; // Mã ghế
-  Seat({required this.id});
-}
-
-
-class SeatSelector extends StatelessWidget {
-  const SeatSelector({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final List<Seat> selectedSeats = [
-      Seat(id: 3),
-      Seat(id: 7),
-      Seat(id: 12),
-      Seat(id: 15),
-    ];
-
     return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Phần tiêu đề cố định
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: TextHead(text: 
-              "Seat Selection",
-             
-            ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7, // Số ghế trên mỗi hàng
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
           ),
-          const SizedBox(height: 10),
-
-          // Phần cuộn
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset("screen.png"),
-                  const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: SeatSelectionWidget(
-                      rows: 8, // Số hàng
-                      columns: 7, // Số cột
-                      selectedSeats: selectedSeats, // Danh sách ghế đã chọn
-                    ),
-                  ),
-                ],
+          itemCount: seats.length,
+          itemBuilder: (context, index) {
+            final seat = seats[index];
+            return GestureDetector(
+              onTap: seat.status != 'unavailable'
+                  ? () => selectSeat(index)
+                  : null, // Chỉ cho phép chọn nếu ghế không phải "unavailable"
+              child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: seat.status == 'available'
+                      ? Colors.green // Chưa đặt
+                      : (seat.status == 'booked'
+                          ? Colors.red // Đã đặt
+                          : Colors.grey), // Không thể đặt
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  seat.id,
+                  style: const TextStyle(color: Colors.white),
+                ),
               ),
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
     );
   }

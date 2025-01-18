@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:movie_app/Widgets/back_button.dart';
+import 'package:movie_app/Components/back_button.dart';
 import 'package:movie_app/home.dart';
 class PopularScreen extends StatefulWidget {
   const PopularScreen({super.key});
