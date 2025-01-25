@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movie_app/core/theme/radius.dart';
 
 class AppButton extends StatelessWidget {
   const AppButton({
@@ -14,6 +15,7 @@ class AppButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary,
+        borderRadius: radius20,
       ),
       child: InkWell(
         onTap: onPressed,

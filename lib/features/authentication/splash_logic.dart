@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:movie_app/core/theme/gap.dart';
 // import 'package:movie_app/Widgets/app_elevated_button.dart';
 // import 'package:movie_app/features/authentication/authen_route.dart';
 
@@ -40,6 +41,7 @@ class SplashScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FlutterLogo(size: 100),
+            Gap.mdHeight,
             CircularProgressIndicator(),
           ],
         ),

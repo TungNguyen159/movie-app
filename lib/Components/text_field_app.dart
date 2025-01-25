@@ -34,6 +34,7 @@ class TextFieldApp extends StatelessWidget {
           fillColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
           filled: true,
           prefixIcon: prefixIcon,
+          prefixIconColor: Theme.of(context).colorScheme.tertiary,
           focusedBorder: OutlineInputBorder(
             borderRadius: radius8,
             borderSide: BorderSide(
