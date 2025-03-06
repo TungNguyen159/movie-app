@@ -89,7 +89,7 @@ class _EditScreenState extends State<EditScreen> {
                       child: ClipRRect(
                           borderRadius: BorderRadius.circular(90.0),
                           child: Image.asset(
-                            "no_image.png",
+                            "assets/no_image.png",
                             fit: BoxFit.fill,
                             height: 170,
                             width: 170,

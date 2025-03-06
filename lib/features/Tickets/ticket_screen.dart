@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:movie_app/Components/back_button.dart';
+import 'package:movie_app/Components/list_display.dart';
 import 'package:movie_app/config/api_handle.dart';
-import 'package:movie_app/features/Tickets/widgets/date_selector.dart';
 import 'package:movie_app/features/Tickets/widgets/seat_selector.dart';
-import 'package:movie_app/features/Tickets/widgets/time_selector.dart';
 import 'package:movie_app/models/seat.dart';
+import 'package:movie_app/models/showtime.dart';
+import 'package:movie_app/service/showtime_service.dart';
 
 class TicketScreen extends StatefulWidget {
   const TicketScreen({super.key, required this.movieId});
@@ -17,13 +18,19 @@ class TicketScreen extends StatefulWidget {
 
 class _TicketScreenState extends State<TicketScreen> {
   late Future<String> movietitle;
-  String? selectedDate;
+  // String? selectedDate;
   String? selectedTime;
-  final List<Seat> selectedSeat = [];
+  String? selectedShowtimeId;
+  String? selectedHallId;
+  List<Seat> selectedSeat = [];
+  late int? totalPrice;
+  final showtimeService = ShowtimeService();
+  late Future<List<Showtime>> showtimelist;
   @override
   void initState() {
     super.initState();
     movietitle = ControllerApi().getitle(widget.movieId);
+    showtimelist = showtimeService.getShowtimeMovieid(widget.movieId);
   }
 
   @override
@@ -32,30 +39,54 @@ class _TicketScreenState extends State<TicketScreen> {
       appBar: _buildAppBar(), // Tách AppBar thành hàm riêng
       body: Column(
         children: [
-          DateSelector(
-            onDateSelected: (selectedDate) {
-              setState(() {
-                this.selectedDate = selectedDate; // Lưu ngày được chọn
-              });
-            },
-          ),
-          TimeSelector(
-            onTimeSelected: (selectedTime) {
-              setState(() {
-                this.selectedTime = selectedTime;
-              });
-            },
-          ),
-          Expanded(
-            child: SeatBookingScreen(
-              onSeatSelected: (selectedSeats) {
-                setState(() {
-                  selectedSeat.clear();
-                  selectedSeat.addAll(selectedSeats);
-                });
-              },
+          // DateSelector(
+          //   onDateSelected: (selectedDate) {
+          //     setState(() {
+          //       this.selectedDate = selectedDate; // Lưu ngày được chọn
+          //     });
+          //   },
+          // ),
+          ListDisplay(
+              listFuture: showtimelist,
+              builder: (snapshot) {
+                final showtimes = snapshot.data!;
+                return Wrap(
+                  spacing: 8.0,
+                  children: showtimes.map((showtime) {
+                    final isSelected = selectedTime == showtime.starttime;
+                    return ChoiceChip(
+                      label: Text(showtime.starttime),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          if (selected) {
+                            selectedShowtimeId = showtime.showtimeid;
+                            selectedTime = showtime.starttime;
+                            selectedHallId = showtime.hallid;
+                            selectedSeat.clear();
+                          } else {
+                            selectedShowtimeId = null;
+                            selectedTime = null;
+                            selectedHallId = null;
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                );
+              }),
+          if (selectedShowtimeId != null && selectedHallId != null)
+            Expanded(
+              child: SeatBookingScreen(
+                onSeatSelected: (seats, totalPrice) {
+                  setState(() {
+                    selectedSeat = List.from(seats);
+                    this.totalPrice = totalPrice; // Cập nhật tổng tiền
+                  });
+                },
+                showtimeId: selectedShowtimeId!,
+              ),
             ),
-          ),
           _buildNextButton(context),
         ],
       ),
@@ -90,9 +121,7 @@ class _TicketScreenState extends State<TicketScreen> {
 
   // Hàm xây dựng nút Next
   Widget _buildNextButton(BuildContext context) {
-    final isDisabled =
-        selectedDate == null || selectedTime == null || selectedSeat.isEmpty;
-
+    final isDisabled = selectedTime == null || selectedSeat.isEmpty;
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Center(
@@ -104,8 +133,9 @@ class _TicketScreenState extends State<TicketScreen> {
                     '/main/detail/ticket/seat/${widget.movieId}',
                     arguments: {
                       "selectedSeat": selectedSeat,
-                      "selectedDate": selectedDate,
-                      "selectedTime": selectedTime,
+                      "selectedHallId": selectedHallId,
+                      "selectedShowtimeId": selectedShowtimeId,
+                      "totalPrice": totalPrice,
                     },
                   );
                 },

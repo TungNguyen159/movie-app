@@ -61,7 +61,7 @@ class _BottomBarState extends State<BottomBar> {
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.book_online),
-                label: 'Your Booking',
+                label: 'Booking',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.settings),

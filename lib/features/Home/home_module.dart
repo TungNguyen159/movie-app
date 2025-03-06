@@ -9,8 +9,8 @@ import 'package:movie_app/router/main_route.dart';
 class HomeModule extends Module {
   @override
   void binds(i) {
-    i.addSingleton(ControllerApi.new);
-    i.addSingleton(HomeController.new);
+    i.addLazySingleton(ControllerApi.new);
+    i.addLazySingleton(HomeController.new);
   }
 
   @override

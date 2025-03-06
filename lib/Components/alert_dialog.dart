@@ -76,7 +76,7 @@ class CustomAlertDialog extends StatelessWidget {
                 ),
                 child: Text(
                   confirmText,
-                  style: const TextStyle(color: Colors.black),
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ],

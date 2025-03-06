@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:movie_app/Components/app_button.dart';
 import 'package:movie_app/Components/back_button.dart';
-import 'package:movie_app/Components/text_head.dart';
 import 'package:movie_app/config/api_handle.dart';
 import 'package:movie_app/config/api_link.dart';
 import 'package:movie_app/core/image/image_app.dart';
@@ -10,6 +9,8 @@ import 'package:movie_app/core/theme/gap.dart';
 import 'package:movie_app/features/Checking/widgets/ticket_item.dart';
 import 'package:movie_app/models/movie_detail.dart';
 import 'package:movie_app/models/seat.dart';
+import 'package:movie_app/service/hall_service.dart';
+import 'package:movie_app/service/seat_service.dart';
 
 class CheckingScreen extends StatefulWidget {
   final Map movie;
@@ -27,15 +28,20 @@ class CheckingScreen extends StatefulWidget {
 class _CheckingScreenState extends State<CheckingScreen> {
   late final Future<MovieDetail> movieDetails;
   late List<Seat> selectedSeat;
-  late String selectedDate;
-  late String selectedTime;
+  // late String selectedDate;
+  late String selectedHallId;
+  late String selectedShowtimeId;
+  late int totalPrice;
+  final seatService = SeatService();
   @override
   void initState() {
     super.initState();
     movieDetails = ControllerApi().fetchMovieDetail(widget.movieId);
     selectedSeat = Modular.args.data['selectedSeat'];
-    selectedDate = Modular.args.data['selectedDate'];
-    selectedTime = Modular.args.data['selectedTime'];
+    //selectedDate = Modular.args.data['selectedDate'];
+    selectedShowtimeId = Modular.args.data['selectedShowtimeId'];
+    selectedHallId = Modular.args.data['selectedHallId'];
+    totalPrice = Modular.args.data['totalPrice'];
   }
 
   @override
@@ -113,8 +119,29 @@ class _CheckingScreenState extends State<CheckingScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              TextHead(text: selectedDate),
-                              TextHead(text: selectedTime),
+                              // TextHead(text: selectedDate),
+                              FutureBuilder(
+                                  future: HallService()
+                                      .fetchHallById(selectedHallId),
+                                  builder: (ctx, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const CircularProgressIndicator(); // Hiển thị khi đang tải
+                                    } else if (!snapshot.hasData ||
+                                        snapshot.data!.isEmpty) {
+                                      return const Text(
+                                        "Không có dữ liệu",
+                                        style: TextStyle(color: Colors.grey),
+                                      ); // Trường hợp không có dữ liệu
+                                    } else {
+                                      final halls = snapshot.data!;
+                                      return Text(
+                                        halls['name'],
+                                        style: const TextStyle(
+                                            color: Colors.black, fontSize: 16),
+                                      );
+                                    }
+                                  })
                             ],
                           ),
                         ),
@@ -185,9 +212,12 @@ class _CheckingScreenState extends State<CheckingScreen> {
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: selectedSeat.length,
                     itemBuilder: (ctx, index) {
+                      Seat seat = selectedSeat[index]; // Lấy ghế hiện tại
+                      String price = seat.type == 'vip' ? '100000' : '50000';
                       return TicketItem(
-                        seatNumber: selectedSeat[index].id,
-                        price: selectedSeat[index].price.toString(),
+                        seatNumber: seat.seatid!, // Hiển thị số ghế
+                        price: price, // Hiển thị loại ghế (normal/vip)
+                        type: seat.type,
                       );
                     },
                   ),
@@ -201,13 +231,34 @@ class _CheckingScreenState extends State<CheckingScreen> {
                 horizontal: Gap.mL, vertical: Gap.sM),
             child: AppButton(
               text: "Confirm",
-              onPressed: () {
-                Modular.to.pushNamed(
-                  "/main/detail/ticket/seat/payment",
-                  arguments: {
-                    "selectedSeat": selectedSeat,
-                  },
-                );
+              onPressed: () async {
+                try {
+                  // for (var seat in selectedSeat) {
+                  //   String price = seat.type == 'vip' ? '100000' : '50000';
+                  //   await seatService.insertseat(
+                  //     Seat(
+                  //       hallid: selectedHallId,
+                  //       showtimeId: selectedShowtimeId,
+                  //       seatNumber: seat.seatid,
+                  //       type: seat.type,
+                  //       price: price,
+                  //     ),
+                  //   );
+                  // }
+
+                  // Nếu lưu thành công, chuyển hướng sang trang xác nhận
+                  Modular.to.pushNamed(
+                    "/main/detail/ticket/seat/payment",
+                    arguments: {
+                      "selectedSeat": selectedSeat,
+                    },
+                  );
+                } catch (e) {
+                  // Hiển thị lỗi nếu có
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Lỗi khi lưu ghế: $e")),
+                  );
+                }
               },
             ),
           ),

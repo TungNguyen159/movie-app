@@ -4,11 +4,13 @@ import 'package:movie_app/core/theme/gap.dart';
 class TicketItem extends StatelessWidget {
   final String seatNumber;
   final String price;
+  final String type;
 
   const TicketItem({
     super.key,
     required this.seatNumber, // Bắt buộc giá trị không null
     required this.price,
+    required this.type,
   });
 
   @override
@@ -38,6 +40,29 @@ class TicketItem extends StatelessWidget {
                     Gap.xsHeight,
                     Text(
                       seatNumber, // Giá trị dynamic
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+                //type
+                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text(
+                      "TYPE",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontSize: 11,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Gap.xsHeight,
+                    Text(
+                      type, // Giá trị dynamic
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,

@@ -40,6 +40,8 @@ dependencies:
   flutter_modular: ^6.3.4
   url_launcher: ^6.2.6
   vimeo_player_flutter: ^0.1.0
+  supabase_flutter: ^2.8.3
+  intl: ^0.20.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -22,18 +22,23 @@ class CustomCardThumbnail extends StatelessWidget {
             onTap: () {
               Modular.to.pushNamed("/main/detail/${data.id}");
             },
-            child: Container(
-              decoration: BoxDecoration(
+            child: AspectRatio(
+              aspectRatio: 2 / 3,
+              child: Container(
+                decoration: BoxDecoration(
                   borderRadius: radius20,
                   image: DecorationImage(
-                      image: NetworkImage(
-                          "${ApiLink.imagePath}${data.posterPath}"),
-                      fit: BoxFit.cover)),
-              margin: const EdgeInsets.only(
-                left: 15,
-                right: 15,
-                top: 20,
-                bottom: 20,
+                    image:
+                        NetworkImage("${ApiLink.imagePath}${data.posterPath}"),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                margin: const EdgeInsets.only(
+                  left: 15,
+                  right: 15,
+                  top: 20,
+                  bottom: 20,
+                ),
               ),
             ),
           );
@@ -41,7 +46,7 @@ class CustomCardThumbnail extends StatelessWidget {
         options: CarouselOptions(
           height: 400,
           autoPlay: true,
-          viewportFraction: 0.7,
+          viewportFraction: 0.6,
           autoPlayCurve: Curves.fastOutSlowIn,
           autoPlayAnimationDuration: const Duration(seconds: 2),
         ),

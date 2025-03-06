@@ -14,7 +14,6 @@ class CustomSearch extends StatelessWidget {
     return Scaffold(
       body: Container(
         margin: const EdgeInsets.symmetric(
-          horizontal: Gap.sM,
           vertical: Gap.sM,
         ),
         width: double.infinity,
@@ -23,7 +22,7 @@ class CustomSearch extends StatelessWidget {
           itemBuilder: (ctx, index) {
             final data = snapshot.data[index];
             return Padding(
-              padding: const EdgeInsets.only(top: Gap.sm),
+              padding: const EdgeInsets.only(top: Gap.sM),
               child: SizedBox(
                 width: double.infinity,
                 child: InkWell(
@@ -67,9 +66,8 @@ class CustomSearch extends StatelessWidget {
                             Container(
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
                                     width: 1.0,
                                     style: BorderStyle.solid),
                                 borderRadius: radius8,
@@ -80,7 +78,7 @@ class CustomSearch extends StatelessWidget {
                                   text: 'Release Date ${data.releaseDate}',
                                   textStyle: Theme.of(context)
                                       .textTheme
-                                      .titleMedium!
+                                      .titleSmall!
                                       .copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -102,7 +100,8 @@ class CustomSearch extends StatelessWidget {
                           borderRadius: radius50,
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(Gap.sm).copyWith(top: Gap.mL),
+                          padding: const EdgeInsets.all(Gap.sm)
+                              .copyWith(top: Gap.mL),
                           child: Text(
                             snapshot.data[index].voteAverage.toString(),
                             style: TextStyle(

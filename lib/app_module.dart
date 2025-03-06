@@ -1,6 +1,7 @@
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:movie_app/app.dart';
 
+
 class AppModule extends Module {
   @override
   void binds(Injector i) {
@@ -18,6 +19,7 @@ class AppModule extends Module {
     r.module(TicketRoute.root, module: TicketModule());
     r.module(CheckingRoute.root, module: CheckingModule());
     r.module(SettingRoute.root, module: SettingModule());
+    r.module(ManageRoute.root, module: ManageModule());
     r.child("/main", child: (context) => const BottomBar());
   }
 }

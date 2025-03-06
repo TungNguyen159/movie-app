@@ -13,14 +13,21 @@ class ConfirmationScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const FlutterLogo(),
+            SizedBox(
+              height: 300,
+              width: 300,
+              child: Image.asset("assets/9.png"),
+            ),
             const TextHead(text: "Your ticket have been booked"),
             const Spacer(),
-            AppButton(
-              text: "Go to home",
-              onPressed: () {
-               Modular.to.navigate("/main");
-              },
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: AppButton(
+                text: "Go to home",
+                onPressed: () {
+                 Modular.to.navigate("/main");
+                },
+              ),
             )
           ],
         ),

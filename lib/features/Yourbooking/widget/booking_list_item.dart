@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_modular/flutter_modular.dart';
 import 'package:movie_app/Components/text_head.dart';
 import 'package:movie_app/config/api_link.dart';
 import 'package:movie_app/core/image/image_app.dart';
@@ -16,7 +15,7 @@ class BookingListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void bookdetail() {}
+
 
     return Scaffold(
       body: Container(

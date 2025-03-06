@@ -1,61 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:movie_app/models/seat.dart';
+import 'package:intl/intl.dart'; // Thư viện để format tiền
 
 class BillingDetails extends StatelessWidget {
   const BillingDetails({super.key, required this.selectedSeats});
+
   final List<Seat> selectedSeats;
+
+  // Tính tổng tiền
+  int calculateTotalPrice() {
+    return selectedSeats.fold(
+      0,
+      (sum, seat) => sum + (seat.type == 'vip' ? 100000 : 50000),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    int calculateTotalPrice() {
-      return selectedSeats.fold(0, (sum, seat) => sum + seat.price);
-    }
-
     int totalPrice = calculateTotalPrice();
+    final currencyFormatter = NumberFormat("#,###", "vi_VN"); // Format tiền
+
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Billing Details',
+            'Chi tiết thanh toán',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 23,
+              fontSize: 20,
               color: Colors.black,
             ),
           ),
           const SizedBox(height: 15),
-          Column(
+
+          // Header
+          const Row(
             children: [
-              const Row(
-                children: [
-                  _SummaryLabel(width: 40, text: 'Qty'),
-                  _SummaryLabel(width: 10, text: 'Ticket Type'),
-                  Spacer(),
-                  _SummaryLabel(width: 0, text: 'Price'),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  _SummaryData(
-                      width: 40, text: selectedSeats.length.toString()),
-                  const _SummaryData(width: 10, text: 'Normal Seat'),
-                  const Spacer(),
-                  _SummaryData(width: 0, text: totalPrice.toString()),
-                ],
-              ),
+              Expanded(child: _SummaryLabel(text: 'Số lượng')),
+              Expanded(child: _SummaryLabel(text: 'Loại ghế')),
+              Expanded(child: _SummaryLabel(text: 'Giá')),
             ],
           ),
-          const Divider(color: Colors.black, thickness: 0.8),
+          const Divider(color: Colors.black),
+
+          // Danh sách ghế đã chọn
+          ...selectedSeats.map((seat) => Row(
+                children: [
+                  Expanded(
+                    child: _SummaryData(text: seat.seatid!),
+                  ),
+                  Expanded(
+                    child: _SummaryData(
+                        text: seat.type == 'vip' ? 'VIP' : 'Thường'),
+                  ),
+                  Expanded(
+                    child: _SummaryData(
+                      text:
+                          '${currencyFormatter.format(seat.type == 'vip' ? 100000 : 50000)} VNĐ',
+                    ),
+                  ),
+                ],
+              )),
+
+          const Divider(color: Colors.black, thickness: 1),
+          const SizedBox(height: 10),
+
+          // Tổng tiền
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              totalPrice.toString(),
+              "Tổng tiền: ${currencyFormatter.format(totalPrice)} VNĐ",
               style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.redAccent,
+              ),
             ),
           ),
         ],
@@ -64,54 +85,39 @@ class BillingDetails extends StatelessWidget {
   }
 }
 
-// class _BillingSummary extends StatelessWidget {
-//   const _BillingSummary();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const
-//   }
-// }
-
+// Component Label tiêu đề
 class _SummaryLabel extends StatelessWidget {
-  final double width;
   final String text;
-
-  const _SummaryLabel({required this.width, required this.text});
+  const _SummaryLabel({required this.text});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(right: width),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
       ),
+      textAlign: TextAlign.center,
     );
   }
 }
 
+// Component hiển thị dữ liệu
 class _SummaryData extends StatelessWidget {
-  final double width;
   final String text;
-
-  const _SummaryData({required this.width, required this.text});
+  const _SummaryData({required this.text});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(right: width),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 16,
-          color: Colors.grey,
-        ),
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 16,
+        color: Colors.grey,
       ),
+      textAlign: TextAlign.center,
     );
   }
 }

@@ -9,10 +9,14 @@ class TextFieldApp extends StatelessWidget {
     this.hintText,
     this.obscureText = false,
     this.prefixIcon,
+    this.validator,
+    this.controller,
   });
   final String? hintText;
   final bool obscureText;
   final Widget? prefixIcon;
+  final String? Function(String?)? validator;
+  final TextEditingController? controller;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -46,7 +50,10 @@ class TextFieldApp extends StatelessWidget {
             vertical: Gap.mL,
           ),
         ),
+        style: const TextStyle(color: Colors.black),
+        controller: controller,
         obscureText: obscureText,
+        validator: validator,
       ),
     );
   }

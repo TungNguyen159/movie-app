@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:movie_app/Components/back_button.dart';
 import 'package:movie_app/detail.dart';
 import 'package:movie_app/features/details/detail_controller.dart';
+import 'package:movie_app/models/showtime.dart';
+import 'package:movie_app/service/showtime_service.dart';
 
 class DetailScreen extends StatefulWidget {
   const DetailScreen({super.key, required this.movieId});
@@ -22,6 +24,34 @@ class _DetailScreenState extends State<DetailScreen> {
 
     detailController = DetailController(
         controllerApis, movieId); // Khởi tạo detailController trong initState
+  }
+
+  final showtimeService = ShowtimeService();
+  void _checkShowtimeAndNavigate() async {
+    List<Showtime> showtimes =
+        await showtimeService.getShowtimeMovieid(widget.movieId);
+
+    if (showtimes.isNotEmpty) {
+      Modular.to.pushNamed('/main/detail/ticket/${widget.movieId}');
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Thông báo"),
+            content: const Text("Phim này hiện không có suất chiếu nào!"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Đóng hộp thoại
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -85,28 +115,7 @@ class _DetailScreenState extends State<DetailScreen> {
               padding: const EdgeInsets.all(Gap.mL),
               child: AppButton(
                 text: "Get ticket",
-                onPressed: () {
-                  Modular.to.pushNamed('/main/detail/ticket/${widget.movieId}');
-                },
-                // onPressed: () async {
-                //   final result = await showDialog(
-                //     context: context,
-                //     builder: (BuildContext context) => const CustomAlertDialog(
-                //       title: "Alert",
-                //       description:
-                //           "this movie not in onshowing still booking ?",
-                //       confirmText: "continue",
-                //       cancelText: "cancel",
-                //     ),
-                //   );
-                //   if (result == true) {
-                //     Modular.to.pushNamed(
-                //       '/main/detail/ticket/${widget.movieId}',
-                //     );
-                //   } else {
-                //     Navigator.of(context).pop;
-                //   }
-                // },
+                onPressed: _checkShowtimeAndNavigate,
               ),
             ),
           ],
