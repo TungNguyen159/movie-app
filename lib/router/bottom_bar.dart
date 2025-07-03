@@ -31,7 +31,7 @@ class _BottomBarState extends State<BottomBar> {
       ),
       bottomNavigationBar: ClipRRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), // Blur effect
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5), // Blur effect
           child: BottomNavigationBar(
             onTap: (index) {
               setState(() {
@@ -61,11 +61,11 @@ class _BottomBarState extends State<BottomBar> {
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.book_online),
-                label: 'Your Booking',
+                label: 'Booking',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.settings),
-                label: 'Settings',
+                icon: Icon(Icons.person_2),
+                label: 'Profile',
               ),
             ],
           ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ListDisplay<T> extends StatelessWidget {
   final Future<List<T>> listFuture;
-  final Widget Function(AsyncSnapshot<List<T>>) builder;
+  final Widget Function(List<T> data) builder;
   const ListDisplay({
     super.key,
     required this.listFuture,
@@ -25,7 +25,8 @@ class ListDisplay<T> extends StatelessWidget {
             style: const TextStyle(color: Colors.red),
           ));
         } else if (snapshot.hasData) {
-          return builder(snapshot);
+          final data = snapshot.data!;
+          return builder(data);
         } else {
           return Center(
               child: Text(

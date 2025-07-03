@@ -1,0 +1,20 @@
+library checking;
+
+export 'package:flutter_modular/flutter_modular.dart';
+export 'package:movie_app/Components/app_button.dart';
+export 'package:movie_app/Components/text_head.dart';
+export 'package:movie_app/features/Checking/widgets/billing_details.dart';
+export 'package:movie_app/models/booking.dart';
+export 'package:movie_app/models/coupon.dart';
+export 'package:movie_app/models/seat.dart';
+export 'package:intl/intl.dart';
+export 'package:movie_app/service/booking_service.dart';
+export 'package:movie_app/service/coupon_service.dart';
+export 'package:movie_app/service/seat_service.dart';
+export 'package:movie_app/Components/back_button.dart';
+export 'package:movie_app/config/api_handle.dart';
+export 'package:movie_app/config/api_link.dart';
+export 'package:movie_app/core/image/image_app.dart';
+export 'package:movie_app/core/theme/gap.dart';
+export 'package:movie_app/features/Checking/widgets/ticket_item.dart';
+export 'package:movie_app/models/movie_detail.dart';

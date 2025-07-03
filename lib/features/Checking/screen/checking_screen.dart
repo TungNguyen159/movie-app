@@ -1,16 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_modular/flutter_modular.dart';
-import 'package:movie_app/Components/app_button.dart';
-import 'package:movie_app/Components/back_button.dart';
-import 'package:movie_app/Components/text_head.dart';
-import 'package:movie_app/config/api_handle.dart';
-import 'package:movie_app/config/api_link.dart';
-import 'package:movie_app/core/image/image_app.dart';
-import 'package:movie_app/core/theme/gap.dart';
-import 'package:movie_app/features/Checking/widgets/ticket_item.dart';
-import 'package:movie_app/models/movie_detail.dart';
-import 'package:movie_app/models/seat.dart';
-
+import 'package:movie_app/checking.dart';
 class CheckingScreen extends StatefulWidget {
   final Map movie;
   final int movieId;
@@ -27,15 +16,14 @@ class CheckingScreen extends StatefulWidget {
 class _CheckingScreenState extends State<CheckingScreen> {
   late final Future<MovieDetail> movieDetails;
   late List<Seat> selectedSeat;
-  late String selectedDate;
-  late String selectedTime;
+  late String selectedShowtimeId;
+  final seatService = SeatService();
   @override
   void initState() {
     super.initState();
     movieDetails = ControllerApi().fetchMovieDetail(widget.movieId);
     selectedSeat = Modular.args.data['selectedSeat'];
-    selectedDate = Modular.args.data['selectedDate'];
-    selectedTime = Modular.args.data['selectedTime'];
+    selectedShowtimeId = Modular.args.data['selectedShowtimeId'];
   }
 
   @override
@@ -48,20 +36,7 @@ class _CheckingScreenState extends State<CheckingScreen> {
         }),
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: true,
-        title: FutureBuilder<MovieDetail>(
-          future: movieDetails,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Text("Loading..."); // Hiển thị khi đang tải
-            } else if (snapshot.hasError) {
-              return const Text("Error loading title"); // Lỗi
-            } else {
-              return Text(snapshot.data!.originalTitle, // In ra title
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold));
-            }
-          },
-        ),
+        title: const TextHead(text: "Checking"),
       ),
       body: Column(
         children: [
@@ -108,16 +83,6 @@ class _CheckingScreenState extends State<CheckingScreen> {
                         height: 50,
                         width: double.maxFinite,
                         color: const Color.fromARGB(255, 252, 205, 212),
-                        child: Padding(
-                          padding: const EdgeInsets.all(Gap.sM),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              TextHead(text: selectedDate),
-                              TextHead(text: selectedTime),
-                            ],
-                          ),
-                        ),
                       ),
                       Container(
                         color: const Color.fromARGB(255, 252, 205, 212),
@@ -185,9 +150,11 @@ class _CheckingScreenState extends State<CheckingScreen> {
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: selectedSeat.length,
                     itemBuilder: (ctx, index) {
+                      Seat seat = selectedSeat[index]; // Lấy ghế hiện tại
                       return TicketItem(
-                        seatNumber: selectedSeat[index].id,
-                        price: selectedSeat[index].price.toString(),
+                        seatNumber: seat.seatnumber!, // Hiển thị số ghế
+                        price: seat.price!, // Hiển thị loại ghế (normal/vip)
+                        type: seat.type,
                       );
                     },
                   ),
@@ -201,13 +168,22 @@ class _CheckingScreenState extends State<CheckingScreen> {
                 horizontal: Gap.mL, vertical: Gap.sM),
             child: AppButton(
               text: "Confirm",
-              onPressed: () {
-                Modular.to.pushNamed(
-                  "/main/detail/ticket/seat/payment",
-                  arguments: {
-                    "selectedSeat": selectedSeat,
-                  },
-                );
+              onPressed: () async {
+                try {
+                  // Nếu lưu thành công, chuyển hướng sang trang xác nhận
+                  Modular.to.pushReplacementNamed(
+                    "/main/detail/ticket/payment",
+                    arguments: {
+                      "selectedSeat": selectedSeat,
+                      "selectedShowtimeId": selectedShowtimeId,
+                    },
+                  );
+                } catch (e) {
+                  // Hiển thị lỗi nếu có
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Lỗi khi lưu ghế: $e")),
+                  );
+                }
               },
             ),
           ),

@@ -37,7 +37,7 @@ class Movies {
         originalTitle: json["original_title"] ?? 'Unknown',
         overview: json["overview"] ?? 'Unknown',
         popularity: json["popularity"]?.toDouble() ?? 0.0,
-        posterPath: json["poster_path"] ?? '',
+        posterPath: json["poster_path"] ?? 'unknown',
         releaseDate: json["release_date"] ?? 'Unknown',
         title: json["title"] ?? 'Unknown',
         voteAverage: json["vote_average"]?.toDouble() ?? 0.0,

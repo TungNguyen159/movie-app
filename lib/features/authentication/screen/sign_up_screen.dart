@@ -1,92 +1,166 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:movie_app/Components/text_field_app.dart';
 import 'package:movie_app/Components/text_head.dart';
 import 'package:movie_app/core/theme/gap.dart';
-import 'package:movie_app/features/authentication/screen/sign_in_screen.dart';
+import 'package:movie_app/features/authentication/authen_controller.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  final AuthenController controller = Modular.get<AuthenController>();
+  final _formKey = GlobalKey<FormState>();
+  void onSignupPressed() {
+    if (_formKey.currentState!.validate()) {
+      controller.signup(onSuccess: () {
+        // Chuyển hướng đến trang đăng nhập
+        Modular.to.pushReplacementNamed("/authen/signin");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Đăng ký thành công"),
+          ),
+        );
+      }, onError: (message) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          SizedBox(
-            height: 250,
-            width: 300,
-            child: Image.asset('5.png'),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(Gap.mL),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 35),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const TextFieldApp(
-                  hintText: "Username",
-                  prefixIcon: Icon(Icons.person),
+                SizedBox(
+                  height: 250,
+                  width: 300,
+                  child: Image.asset('assets/10.png'),
                 ),
-                const TextFieldApp(
-                  hintText: "email",
-                  prefixIcon: Icon(Icons.mail),
-                ),
-                const TextFieldApp(
-                  hintText: "Password",
-                  prefixIcon: Icon(Icons.password),
-                  obscureText: true,
-                ),
-                const TextFieldApp(
-                  hintText: "Confirm password",
-                  prefixIcon: Icon(Icons.password),
-                  obscureText: true,
-                ),
-                Gap.mdHeight,
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (ctx) => const SignInScreen(),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(300, 60),
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    elevation: 5,
-                    padding: const EdgeInsets.symmetric(vertical: Gap.sM),
-                  ),
-                  child: TextHead(
-                    text: "Sign up",
-                    textStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onTertiary,
-                      fontSize: 18,
+                Padding(
+                  padding: const EdgeInsets.all(Gap.mL),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextFieldApp(
+                          hintText: "Username",
+                          prefixIcon: const Icon(Icons.person),
+                          controller: controller.nameController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Username cannot be empty";
+                            }
+                            return null;
+                          },
+                          textInputAction: TextInputAction.next,
+                        ),
+                        Gap.mLHeight,
+                        TextFieldApp(
+                          hintText: "email",
+                          prefixIcon: const Icon(Icons.mail),
+                          controller: controller.emailController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Email cannot be empty";
+                            }
+                            if (!RegExp(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
+                                    .hasMatch(value) ||
+                                !value.endsWith("@gmail.com")) {
+                              return "Invalid email format";
+                            }
+                            return null;
+                          },
+                          textInputAction: TextInputAction.next,
+                        ),
+                        Gap.mLHeight,
+                        TextFieldApp(
+                          hintText: "Password",
+                          prefixIcon: const Icon(Icons.lock),
+                          obscureText: true,
+                          controller: controller.passwordController,
+                          validator: (value) {
+                            if (value == null || value.length < 6) {
+                              return "Password must be at least 6 characters";
+                            }
+                            return null;
+                          },
+                          textInputAction: TextInputAction.next,
+                        ),
+                        Gap.mLHeight,
+                        TextFieldApp(
+                          hintText: "Confirm password",
+                          prefixIcon: const Icon(Icons.lock),
+                          obscureText: true,
+                          controller: controller.passwordConfirmController,
+                          validator: (value) {
+                            if (value != controller.passwordController.text) {
+                              return "Passwords do not match";
+                            }
+                            return null;
+                          },
+                          textInputAction: TextInputAction.done,
+                        ),
+                        Gap.mdHeight,
+                        ElevatedButton(
+                          onPressed: () => onSignupPressed(),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(300, 60),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            elevation: 5,
+                            padding:
+                                const EdgeInsets.symmetric(vertical: Gap.sM),
+                          ),
+                          child: TextHead(
+                            text: "Sign up",
+                            textStyle: TextStyle(
+                              color: Theme.of(context).colorScheme.onTertiary,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                ),
+                const SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Already have an account?",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Modular.to.navigate("/authen/signin");
+                      },
+                      child: TextHead(
+                        text: "Login",
+                        textStyle: TextStyle(
+                          fontSize: 18,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          const Spacer(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const TextHead(text: "Already have an account?"),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (ctx) => const SignInScreen()));
-                },
-                child: TextHead(
-                  text: "Login",
-                  textStyle: TextStyle(
-                    fontSize: 18,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-            ],
-          )
-        ],
+        ),
       ),
     );
   }
