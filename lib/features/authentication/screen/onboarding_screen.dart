@@ -4,6 +4,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:movie_app/Components/app_button.dart';
 import 'package:movie_app/Components/text_head.dart';
 import 'package:movie_app/core/theme/gap.dart';
+import 'package:movie_app/data/dummy_data.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -15,29 +16,8 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentIndex = 0; // Index của slider hiện tại
 
-  final List<Map<String, String>> onboardingData = [
-    {
-      "image": "assets/7.png",
-      "title": "Khám phá thế giới phim",
-      "description": "Cập nhật phim mới nhất, hot nhất trên thị trường."
-    },
-    {
-      "image": "assets/8.png",
-      "title": "Đặt vé dễ dàng",
-      "description":
-          "Chỉ vài bước đơn giản để sở hữu ngay vé xem phim yêu thích."
-    },
-    {
-      "image": "assets/9.png",
-      "title": "Trải nghiệm tuyệt vời",
-      "description":
-          "Tận hưởng không gian giải trí đỉnh cao với bạn bè và gia đình."
-    },
-  ];
-
   void _completeOnboarding() {
-    Modular.to
-        .pushReplacementNamed("/authen/signin"); // Điều hướng đến đăng nhập
+    Modular.to.navigate("/authen/signin"); // Điều hướng đến đăng nhập
   }
 
   @override

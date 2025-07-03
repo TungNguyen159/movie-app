@@ -6,7 +6,7 @@ class CastAndCrew extends StatelessWidget {
     super.key,
     required this.cast,
   });
-  final List<dynamic> cast;
+  final List<Cast> cast;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,7 @@ class CastAndCrew extends StatelessWidget {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              cast[index].originalName ?? "Unknown",
+                              cast[index].originalName,
                               maxLines: 2,
                               textAlign: TextAlign.center,
                               style: Theme.of(context)

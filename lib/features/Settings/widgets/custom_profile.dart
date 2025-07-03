@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:movie_app/home.dart';
+import 'package:movie_app/models/user.dart';
 
 class CustomProfile extends StatelessWidget {
   const CustomProfile({
     super.key,
+    required this.user,
   });
-
+  final Users user;
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -14,7 +16,9 @@ class CustomProfile extends StatelessWidget {
           children: [
             InkWell(
               onTap: () {
-                Modular.to.pushNamed("/main/setting/editProfile");
+                Modular.to.pushNamed("/main/setting/editProfile", arguments: {
+                  "user": user,
+                });
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -45,6 +49,9 @@ class CustomProfile extends StatelessWidget {
               },
               child: Container(
                 decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16)),
                   border: Border(
                       right: BorderSide(color: Colors.grey),
                       left: BorderSide(color: Colors.grey),
@@ -58,37 +65,6 @@ class CustomProfile extends StatelessWidget {
                     children: [
                       TextHead(
                         text: 'Favourites',
-                        textStyle: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const Icon(Icons.arrow_right)
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                Modular.to.pushNamed("/main/setting/notification");
-              },
-              child: Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(16),
-                      bottomRight: Radius.circular(16)),
-                  border: Border(
-                    bottom: BorderSide(color: Colors.grey),
-                    right: BorderSide(color: Colors.grey),
-                    left: BorderSide(color: Colors.grey),
-                  ),
-                ),
-                height: 55,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextHead(
-                        text: 'Notification',
                         textStyle: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const Icon(Icons.arrow_right)

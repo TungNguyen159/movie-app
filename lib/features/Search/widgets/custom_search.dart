@@ -5,10 +5,11 @@ import 'package:movie_app/config/api_link.dart';
 import 'package:movie_app/core/image/image_app.dart';
 import 'package:movie_app/core/theme/gap.dart';
 import 'package:movie_app/core/theme/radius.dart';
+import 'package:movie_app/models/movie.dart';
 
 class CustomSearch extends StatelessWidget {
-  const CustomSearch({super.key, required this.snapshot});
-  final AsyncSnapshot snapshot;
+  const CustomSearch({super.key, required this.movie});
+  final List<Movies> movie;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,9 +19,9 @@ class CustomSearch extends StatelessWidget {
         ),
         width: double.infinity,
         child: ListView.builder(
-          itemCount: snapshot.data.length,
+          itemCount: movie.length,
           itemBuilder: (ctx, index) {
-            final data = snapshot.data[index];
+            final data = movie[index];
             return Padding(
               padding: const EdgeInsets.only(top: Gap.sM),
               child: SizedBox(
@@ -103,7 +104,7 @@ class CustomSearch extends StatelessWidget {
                           padding: const EdgeInsets.all(Gap.sm)
                               .copyWith(top: Gap.mL),
                           child: Text(
-                            snapshot.data[index].voteAverage.toString(),
+                            data.voteAverage.toString(),
                             style: TextStyle(
                               fontSize: 13,
                               color: Theme.of(context).colorScheme.onPrimary,

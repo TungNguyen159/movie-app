@@ -1,20 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:movie_app/Components/alert_dialog.dart';
+import 'package:movie_app/Components/showtime_helper.dart';
 import 'package:movie_app/Components/text_head.dart';
-import 'package:movie_app/config/api_key.dart';
-import 'package:movie_app/config/api_link.dart';
+import 'package:movie_app/features/manage/widget/price_detail.dart';
+import 'package:movie_app/models/coupon.dart';
+import 'package:movie_app/service/booking_service.dart';
+import 'package:movie_app/service/coupon_service.dart';
+import 'package:movie_app/service/seat_service.dart';
 
-class DetailBookingDialog extends StatelessWidget {
-  const DetailBookingDialog({super.key, required this.posterurl});
-  final String posterurl;
+class DetailBookingDialog extends StatefulWidget {
+  const DetailBookingDialog({
+    super.key,
+    required this.bookingid,
+    this.couponid,
+    required this.status,
+  });
+  final String bookingid;
+  final String? couponid;
+  final String status;
+  @override
+  State<DetailBookingDialog> createState() => _DetailBookingDialogState();
+}
+
+class _DetailBookingDialogState extends State<DetailBookingDialog> {
+  final seatService = SeatService();
+  final couponService = CouponService();
+  final bookingService = BookingService();
+  int discount = 0; // % giảm giá nếu có coupon
+  bool isPercentage = true;
+  String couponCode = '';
+
+  Future<void> fetchCouponDiscount() async {
+    if (widget.couponid == null || widget.couponid!.isEmpty) {
+      return;
+    }
+    Coupon? coupon = await couponService.checkCoupondetail(widget.couponid!);
+    if (coupon != null && mounted) {
+      setState(() {
+        couponCode = coupon.code;
+        discount = coupon.discount;
+        isPercentage = coupon.ispercentage;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    fetchCouponDiscount();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 500, // Giới hạn chiều cao
-      width: 400, // Giới hạn chiều rộng
+      width: 350, // Giới hạn chiều rộng
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface, // Đặt màu trong BoxDecoration
+        color: Theme.of(context)
+            .colorScheme
+            .surface, // Đặt màu trong BoxDecoration
         borderRadius: BorderRadius.circular(20), // Bo góc
         boxShadow: [
           BoxShadow(
@@ -28,58 +73,113 @@ class DetailBookingDialog extends StatelessWidget {
         mainAxisSize:
             MainAxisSize.min, // Đảm bảo nội dung không chiếm toàn bộ không gian
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              "${ApiLink.imagePath}$posterurl?api_key=${ApiKey.apiKeys}",
-              height: 200, // Giới hạn chiều cao của hình ảnh
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.error, size: 48, color: Colors.red);
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12.0),
+          const Padding(
+            padding: EdgeInsets.all(12.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextHead(
-                  text: "seat",
-                  textStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary),
-                ),
-                TextHead(
-                  text: "price",
-                  textStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary),
-                ),
-                TextHead(
-                  text: "status",
-                  textStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary),
-                ),
+                Texttitle(text: 'Seat'),
+                Texttitle(text: 'Type'),
+                Texttitle(text: 'Price'),
               ],
             ),
           ),
-          const Expanded(
+          const Divider(height: 1, thickness: 1),
+          Expanded(
             child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  custom_seat(seat: 'seat 1', price: '1000', status: 'Confirm'),
-                  custom_seat(seat: 'seat 2', price: '3000', status: 'Confirm'),
-                  custom_seat(seat: 'seat 3', price: '4000', status: 'Confirm'),
-                  custom_seat(seat: 'seat 4', price: '5000', status: 'Confirm'),
-                ],
+              child: FutureBuilder(
+                future: seatService.getseat(widget.bookingid),
+                builder: (ctx, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data == null) {
+                    return const Center(child: Text("Không có dữ liệu phim"));
+                  }
+
+                  final data = snapshot.data!;
+
+                  int totalPrice =
+                      data.fold(0, (sum, seat) => sum + (seat.price ?? 0));
+                  int discountAmount = isPercentage
+                      ? (totalPrice * discount ~/ 100)
+                      : discount; // Dùng ~/ để lấy kết quả nguyên
+                  int priceAfterDiscount = totalPrice - discountAmount;
+                  int tax = (totalPrice * 10 ~/ 100);
+                  int finalTotal = priceAfterDiscount + tax;
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        ListView.builder(
+                            itemCount: data.length,
+                            shrinkWrap: true, // Giúp tránh lỗi bố cục
+                            itemBuilder: (ctx, index) {
+                              final seat = data[index];
+                              return CustomSeat(
+                                  seat: seat.seatnumber!,
+                                  price: seat.price.toString(),
+                                  type: seat.type);
+                            }),
+                        const Divider(),
+                        PriceDetail(
+                            totalPrice: totalPrice,
+                            taxAmount: tax,
+                            code: couponCode.isNotEmpty
+                                ? couponCode
+                                : "Không có mã giảm giá",
+                            discountAmount: discountAmount,
+                            finalPrice: finalTotal),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (data.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          "Không có thông tin ghế để xử lý huỷ đơn!")),
+                                );
+                                return;
+                              }
+                              final showStartTime =
+                                  ShowtimeHelper.getShowStartTime(
+                                      data.first.showtime!);
+                              final now = DateTime.now();
+                              final diff = showStartTime.difference(now);
+                              if (diff.inMinutes <= 30 ||
+                                  widget.status == "paid") {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          "Không thể huỷ đơn hàng trước thời gian chiếu 30 phút hoặc đơn hàng đã thanh toán")),
+                                );
+
+                                return;
+                              }
+                              _onCancel(widget.bookingid);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size.fromHeight(40),
+                            ),
+                            child: const Text("Huỷ đơn hàng"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
           ),
           Container(
             width: double.infinity,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.blue, // Đặt màu tại đây
-              borderRadius: const BorderRadius.only(
+              borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
               ),
@@ -95,18 +195,56 @@ class DetailBookingDialog extends StatelessWidget {
       ),
     );
   }
+
+  _onCancel(String bookingid) async {
+    final result = await showDialog(
+      context: context,
+      builder: (BuildContext context) => const CustomAlertDialog(
+        title: "Xác nhận",
+        description: "Bạn có chắc chắn muốn hủy đơn đặt vé này?",
+        confirmText: "Có",
+        cancelText: "Không",
+      ),
+    );
+
+    if (result == true) {
+      bookingService.updatestatusCancel(bookingid);
+      seatService.deleteSeat(bookingid);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Đơn đặt vé đã bị hủy.")),
+      );
+      Navigator.pop(context, true);
+    }
+  }
 }
 
-class custom_seat extends StatelessWidget {
-  const custom_seat({
+class Texttitle extends StatelessWidget {
+  const Texttitle({
+    super.key,
+    required this.text,
+  });
+  final String text;
+  @override
+  Widget build(BuildContext context) {
+    return TextHead(
+      text: text,
+      textStyle: TextStyle(
+          color: Theme.of(context).colorScheme.onPrimary,
+          fontWeight: FontWeight.bold),
+    );
+  }
+}
+
+class CustomSeat extends StatelessWidget {
+  const CustomSeat({
     super.key,
     required this.seat,
     required this.price,
-    required this.status,
+    required this.type,
   });
   final String seat;
   final String price;
-  final String status;
+  final String type;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -114,28 +252,9 @@ class custom_seat extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          TextHead(
-            text: seat,
-            textStyle:
-                TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-          ),
-          TextHead(
-            text: price,
-            textStyle:
-                TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-          ),
-          Row(
-            children: [
-              TextHead(
-                text: status,
-                textStyle: const TextStyle(color: Colors.green),
-              ),
-              const Icon(
-                Icons.check_circle,
-                color: Colors.green,
-              ),
-            ],
-          ),
+          Texttitle(text: seat),
+          Texttitle(text: type),
+          Texttitle(text: price),
         ],
       ),
     );

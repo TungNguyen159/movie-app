@@ -1,19 +1,25 @@
 class Hall {
-  final String hallid;
+  final String? hallid;
   final String nameHall;
-  final int totalSeat;
+  final int row;
+  final int column;
+  final String? status;
 
   Hall({
-    required this.hallid,
+    this.hallid,
     required this.nameHall,
-    required this.totalSeat,
+    required this.row,
+    required this.column,
+    this.status,
   });
 
   factory Hall.fromJson(Map<String, dynamic> json) {
     return Hall(
       hallid: json['id'].toString(),
       nameHall: json['name'] ?? 'unknown',
-      totalSeat: json['total_seat'] ?? 'unknown',
+      row: json['row'] ?? 0,
+      column: json['column'] ?? 0,
+      status: json['status'] ?? 'closed',
     );
   }
 }

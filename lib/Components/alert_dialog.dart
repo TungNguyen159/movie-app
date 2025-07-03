@@ -5,7 +5,6 @@ class CustomAlertDialog extends StatelessWidget {
   final String description;
   final String confirmText;
   final String cancelText;
-
   const CustomAlertDialog({
     super.key,
     required this.title,

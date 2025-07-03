@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:movie_app/detail.dart';
 
 class CustomDetail extends StatelessWidget {
   const CustomDetail({super.key, required this.snapshot});
-  final AsyncSnapshot snapshot;
+  final MovieDetail snapshot;
   @override
   Widget build(BuildContext context) {
-    final data = snapshot.data;
+    final data = snapshot;
+    final dateText =
+        DateFormat('dd/MM/yyyy').format(DateTime.parse(data.releaseDate));
     return Stack(
       children: [
         SingleChildScrollView(
@@ -17,9 +20,8 @@ class CustomDetail extends StatelessWidget {
                 height: MediaQuery.of(context).size.height * 0.7,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: snapshot.data.posterPath.isNotEmpty
-                        ? NetworkImage(
-                            '${ApiLink.imagePath}${data.posterPath}')
+                    image: data.posterPath != null
+                        ? NetworkImage('${ApiLink.imagePath}${data.posterPath}')
                         : AssetImage(ImageApp.defaultImage),
                     fit: BoxFit.cover,
                   ),
@@ -40,11 +42,12 @@ class CustomDetail extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               TextHead(
-                                text: '${data.originalTitle}',
+                                text: data.originalTitle,
                                 maxLines: 2,
-                                textStyle: Theme.of(context).textTheme.titleLarge!.copyWith(
-                                  fontWeight: FontWeight.bold
-                                ),
+                                textStyle: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge!
+                                    .copyWith(fontWeight: FontWeight.bold),
                               ),
                               Gap.xsHeight,
                               Container(
@@ -60,8 +63,7 @@ class CustomDetail extends StatelessWidget {
                                 child: Padding(
                                   padding: const EdgeInsets.all(Gap.sm),
                                   child: TextHead(
-                                    text:
-                                        'Release Date ${data.releaseDate}',
+                                    text: 'Release Date $dateText',
                                     textStyle: Theme.of(context)
                                         .textTheme
                                         .titleMedium!
@@ -99,7 +101,7 @@ class CustomDetail extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          for (var genres in snapshot.data.genres)
+                          for (var genres in data.genres)
                             _buildTag('${genres.name}'),
                         ],
                       ),
@@ -108,10 +110,13 @@ class CustomDetail extends StatelessWidget {
                     Column(
                       children: [
                         Text(
-                          '${snapshot.data.overview}',
-                          style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary
-                          ),
+                          '${data.overview}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary),
                         ),
                       ],
                     )

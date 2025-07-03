@@ -1,9 +1,4 @@
-import 'package:flutter_modular/flutter_modular.dart';
-import 'package:movie_app/app.dart';
-import 'package:movie_app/features/manage/screen/manage.dart';
-import 'package:movie_app/features/manage/screen/manage_showtime.dart';
-import 'package:movie_app/features/manage/screen/manage_user.dart';
-import 'package:movie_app/router/main_route.dart';
+import 'package:movie_app/manage.dart';
 
 class ManageModule extends Module {
   @override
@@ -17,5 +12,12 @@ class ManageModule extends Module {
     r.child(MainRoute.root, child: (ctx) => const ManageScreen());
     r.child(ManageRoute.rootUser, child: (ctx) => const ManageUser());
     r.child(ManageRoute.rootShowtime, child: (ctx) => const ManageShowtime());
+    r.child(ManageRoute.rootBooking, child: (ctx) => const ManageBooking());
+    r.child(ManageRoute.rootHall, child: (ctx) => const ManageHall());
+    r.child(ManageRoute.rootbookdetail, child: (ctx) => const BookingDetail());
+    r.child(ManageRoute.rootcoupon, child: (ctx) => const ManageCoupon());
+    r.child(ManageRoute.rootstatistic, child: (ctx) => const ManageStatitics());
+    r.child(ManageRoute.rootstmonth, child: (ctx) => const StatisticMonth());
+    r.child(ManageRoute.rootstmovie, child: (ctx) => const StatisticMovie());
   }
 }

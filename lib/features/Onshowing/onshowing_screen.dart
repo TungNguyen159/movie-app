@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:movie_app/Components/list_display.dart';
+import 'package:intl/intl.dart';
 import 'package:movie_app/Components/text_head.dart';
-import 'package:movie_app/config/api_handle.dart';
 import 'package:movie_app/features/Onshowing/widgets/onshowing_list_item.dart';
 import 'package:movie_app/models/showtime.dart';
 import 'package:movie_app/service/showtime_service.dart';
@@ -14,42 +13,117 @@ class OnshowingScreen extends StatefulWidget {
 }
 
 class _OnshowingScreenState extends State<OnshowingScreen> {
-  late Stream<List<Showtime>> onShowingList;
-  final controllerApis = ControllerApi();
   final showtimeService = ShowtimeService();
-  @override
-  void initState() {
-    super.initState();
-    loadData();
+  DateTime? selectedDate;
+
+  // Hàm mở DatePicker và cập nhật state
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
   }
 
-  void loadData() {
-    onShowingList = showtimeService.streamShowtime;
+  // Hàm tải lại dữ liệu (refresh)
+  Future<void> _refreshData() async {
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final formattedDate = selectedDate != null
+        ? DateFormat('dd/MM/yyyy').format(selectedDate!)
+        : 'Chọn ngày';
     return Scaffold(
       appBar: AppBar(
         title: const TextHead(text: "Onshowing"),
       ),
-      body: StreamBuilder<List<Showtime>>(
-        stream: onShowingList,
-        builder: (ctx, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text("Lỗi: ${snapshot.error}"));
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("Không có suất chiếu nào."));
-          }
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.calendar_today, color: Colors.blue),
+                const SizedBox(width: 8),
+                Text(
+                  formattedDate,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: () => _selectDate(context),
+                  icon: const Icon(Icons.date_range),
+                  label: const Text("Chọn ngày"),
+                  style: ElevatedButton.styleFrom(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                if (selectedDate != null)
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        selectedDate = null;
+                      });
+                    },
+                    child: const Text("Reset"),
+                  ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _refreshData,
+              child: FutureBuilder<List<Showtime>>(
+                future: showtimeService.getShowtime(),
+                builder: (ctx, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text("Lỗi: ${snapshot.error}"));
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                        child: Text("Không có suất chiếu nào."));
+                  }
 
-          final List<Showtime> showtimeList = snapshot.data!;
-
-          return OnshowingListItem(showtime: showtimeList);
-        },
+                  // Lọc những suất chiếu không có status là "closed"
+                  final List<Showtime> filteredShowtimeList = snapshot.data!
+                      .where((show) =>
+                          show.status?.toLowerCase() != "canceled" &&
+                          show.status?.toLowerCase() != "finished")
+                      .toList();
+                  final filteredShowtimes = selectedDate != null
+                      ? filteredShowtimeList.where((showtime) {
+                          final showtimeDate =
+                              DateFormat('dd/MM/yyyy').format(showtime.date);
+                          return showtimeDate == formattedDate;
+                        }).toList()
+                      : filteredShowtimeList;
+                  if (filteredShowtimes.isEmpty) {
+                    return const Center(
+                        child: Text("Không có suất chiếu khả dụng."));
+                  }
+                  return OnshowingListItem(showtime: filteredShowtimes);
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

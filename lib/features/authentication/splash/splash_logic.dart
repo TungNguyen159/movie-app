@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:movie_app/core/theme/gap.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-// import 'package:movie_app/Widgets/app_elevated_button.dart';
-// import 'package:movie_app/features/authentication/authen_route.dart';
 
 class SplashLogic extends StatelessWidget {
   const SplashLogic({super.key});

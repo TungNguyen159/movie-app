@@ -1,30 +1,37 @@
+import 'package:movie_app/models/showtime.dart';
+
 class Seat {
   final String? seatid;
-  final String? hallid;
+  final String? bookingid;
   final String? showtimeId;
-  final String? seatNumber;
+  final String? seatnumber;
   final String type;
-  final String? price;
+  final int? price;
+  final Showtime? showtime;
   String? status;
 
   Seat({
     this.seatid,
-    this.hallid,
+    this.bookingid,
     this.showtimeId,
-    this.seatNumber,
+    this.seatnumber,
     this.price,
     this.status,
+    this.showtime,
     required this.type,
   });
 
   factory Seat.fromJson(Map<String, dynamic> json) {
     return Seat(
-      hallid: json['hall_id'],
+      bookingid: json['booking_id'],
       showtimeId: json['showtime_id'],
-      seatNumber: json['seatnumber'],
+      seatnumber: json['seatnumber'],
       status: json['status'],
       price: json['price'],
       type: json['type'],
+      showtime: json["showtimes"] != null
+          ? Showtime.fromJson(json["showtimes"])
+          : null,
     );
   }
 }

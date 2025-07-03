@@ -40,8 +40,8 @@ class _SearchScreenState extends State<SearchScreen> {
         title: Text(
           "Search",
           style: Theme.of(context).textTheme.titleLarge!.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+                fontWeight: FontWeight.bold,
+              ),
         ),
       ),
       body: Padding(
@@ -57,8 +57,8 @@ class _SearchScreenState extends State<SearchScreen> {
             Expanded(
               child: ListDisplay<Movies>(
                 listFuture: searchInfo,
-                builder: (snapshot) {
-                  if (snapshot.data!.isEmpty) {
+                builder: (movie) {
+                  if (movie.isEmpty) {
                     return Center(
                       child: TextHead(
                         text: "Không có dữ liệu",
@@ -69,7 +69,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     );
                   }
-                  return CustomSearch(snapshot: snapshot);
+                  return CustomSearch(movie: movie);
                 },
               ),
             ),

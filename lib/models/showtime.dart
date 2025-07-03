@@ -1,25 +1,38 @@
+import 'package:movie_app/models/hall.dart';
+
 class Showtime {
   final String? showtimeid;
   final int? movieid;
   final String? hallid;
-
   final String starttime;
-  final int ticketprice;
-
-  Showtime(
-      {this.showtimeid,
-      required this.movieid,
-      required this.hallid,
-      required this.starttime,
-      required this.ticketprice});
+  final String endtime;
+  final int price;
+  final DateTime date;
+  final String? status;
+  final Hall? halls;
+  Showtime({
+    this.showtimeid,
+    required this.movieid,
+    required this.hallid,
+    required this.starttime,
+    required this.endtime,
+    required this.price,
+    required this.date,
+    this.status,
+    this.halls,
+  });
 
   factory Showtime.fromJson(Map<String, dynamic> json) {
     return Showtime(
       showtimeid: json['id'].toString(),
       movieid: json['movie_id'] ?? 'no movieid',
-      starttime: json['start_time'],
       hallid: json['hall_id'] ?? 'no hallid',
-      ticketprice: json['ticket_price'] ?? 'no ticketprice',
+      starttime: json['start_time'],
+      endtime: json['end_time'],
+      price: json['price'],
+      date: DateTime.parse(json["date"]),
+      status: json['status'],
+      halls: json['halls'] != null ? Hall.fromJson(json['halls']) : null,
     );
   }
   Map<String, dynamic> toJson() {
@@ -27,7 +40,10 @@ class Showtime {
       'movie_id': movieid,
       'hall_id': hallid,
       'start_time': starttime,
-      'ticket_price': ticketprice,
+      'end_time': endtime,
+      'price': price,
+      'date': date,
+      'status': status,
     };
   }
 }

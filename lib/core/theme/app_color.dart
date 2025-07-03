@@ -6,7 +6,7 @@ const lightColorScheme = ColorScheme(
   onPrimary: Colors.black, // Màu chữ trên primary
   secondary: Colors.blue, // Màu nút nhấn
   onSecondary: Colors.white, // Màu chữ nút nhấn
-  surface: Color(0xFFe6e6e6), // Màu nền cho Card, Dialog
+  surface: Color(0xFFe6e6e6), // Màu nền chính
   onSurface: Color(0xFF000000), // Màu chữ trên surface
   error: Color(0xFFD32F2F), // Màu cho thông báo lỗi
   onError: Colors.white, // Màu chữ trên màu error

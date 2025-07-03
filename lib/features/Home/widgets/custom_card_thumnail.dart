@@ -2,14 +2,16 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:movie_app/config/api_link.dart';
+import 'package:movie_app/core/image/image_app.dart';
 import 'package:movie_app/core/theme/radius.dart';
+import 'package:movie_app/models/movie.dart';
 
 class CustomCardThumbnail extends StatelessWidget {
   const CustomCardThumbnail({
     super.key,
     required this.snapshot,
   });
-  final AsyncSnapshot snapshot;
+  final List<Movies> snapshot;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -17,7 +19,7 @@ class CustomCardThumbnail extends StatelessWidget {
       child: CarouselSlider.builder(
         itemCount: 10,
         itemBuilder: (context, index, pageViewIndex) {
-          final data = snapshot.data[index];
+          final data = snapshot[index];
           return InkWell(
             onTap: () {
               Modular.to.pushNamed("/main/detail/${data.id}");
@@ -28,8 +30,9 @@ class CustomCardThumbnail extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: radius20,
                   image: DecorationImage(
-                    image:
-                        NetworkImage("${ApiLink.imagePath}${data.posterPath}"),
+                    image: data.posterPath!.isNotEmpty
+                        ? NetworkImage('${ApiLink.imagePath}${data.posterPath}')
+                        : AssetImage(ImageApp.defaultImage),
                     fit: BoxFit.cover,
                   ),
                 ),

@@ -11,9 +11,10 @@ final textStyle = TextStyle(color: lightColorScheme.onPrimary);
 final lightTheme = ThemeData(
   useMaterial3: true,
   colorScheme: lightColorScheme,
+  scaffoldBackgroundColor: lightColorScheme.surface,
   appBarTheme: AppBarTheme(
     titleTextStyle: TextStyle(
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: FontWeight.w700,
       color: lightColorScheme.onPrimary,
     ),
@@ -83,9 +84,10 @@ final textStyle1 = TextStyle(color: darkColorScheme.onPrimary);
 final dartkTheme = ThemeData(
   useMaterial3: true,
   colorScheme: darkColorScheme,
+  scaffoldBackgroundColor: darkColorScheme.surface,
   appBarTheme: AppBarTheme(
     titleTextStyle: TextStyle(
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: FontWeight.w700,
       color: darkColorScheme.onPrimary,
     ),

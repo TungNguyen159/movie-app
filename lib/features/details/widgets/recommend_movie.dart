@@ -3,7 +3,7 @@ import 'package:movie_app/detail.dart';
 
 class RecommendScreen extends StatelessWidget {
   const RecommendScreen({super.key, required this.snapshot});
-  final AsyncSnapshot snapshot;
+  final List<Movies> snapshot;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -15,12 +15,12 @@ class RecommendScreen extends StatelessWidget {
           Gap.sMHeight,
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.15,
-            child: snapshot.data != null && snapshot.data.isNotEmpty
+            child:  snapshot.isNotEmpty
                 ? ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: 5,
                     itemBuilder: (context, index) {
-                      final movie = snapshot.data[index];
+                      final movie = snapshot[index];
                       return Padding(
                         padding: const EdgeInsets.only(right: Gap.md),
                         child: InkWell(
@@ -36,7 +36,7 @@ class RecommendScreen extends StatelessWidget {
                                   width: 200,
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
-                                      image: movie.backdropPath != null
+                                      image: movie.backdropPath.isNotEmpty
                                           ? NetworkImage(
                                               "${ApiLink.imagePath}${movie.backdropPath}")
                                           : AssetImage(ImageApp.defaultImage),
@@ -58,8 +58,7 @@ class RecommendScreen extends StatelessWidget {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            movie.originalTitle ??
-                                                "Unknown Title",
+                                            movie.originalTitle,
                                             maxLines: 1,
                                             style: TextStyle(
                                               fontSize: 16,

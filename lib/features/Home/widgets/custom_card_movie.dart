@@ -4,6 +4,7 @@ import 'package:movie_app/Components/text_head.dart';
 import 'package:movie_app/config/api_link.dart';
 import 'package:movie_app/core/theme/gap.dart';
 import 'package:movie_app/core/theme/radius.dart';
+import 'package:movie_app/models/movie.dart';
 
 class CustomCardMovie extends StatelessWidget {
   const CustomCardMovie({
@@ -11,7 +12,7 @@ class CustomCardMovie extends StatelessWidget {
     required this.snapshot,
   });
 
-  final AsyncSnapshot snapshot;
+  final List<Movies> snapshot;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -19,9 +20,9 @@ class CustomCardMovie extends StatelessWidget {
       height: MediaQuery.of(context).size.height * 0.25,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: snapshot.data.length,
+        itemCount: snapshot.length,
         itemBuilder: (context, index) {
-          final data = snapshot.data[index];
+          final data = snapshot[index];
           return InkWell(
             onTap: () {
               Modular.to.pushNamed("/main/detail/${data.id}");

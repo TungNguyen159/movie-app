@@ -1,0 +1,46 @@
+library manage;
+
+// manage route
+export 'package:flutter_modular/flutter_modular.dart';
+export 'package:movie_app/features/manage/manage_route.dart';
+export 'package:movie_app/features/manage/screen/manage.dart';
+export 'package:movie_app/features/manage/screen/manage_booking.dart';
+export 'package:movie_app/features/manage/screen/manage_coupon.dart';
+export 'package:movie_app/features/manage/screen/manage_hall.dart';
+export 'package:movie_app/features/manage/screen/manage_showtime.dart';
+export 'package:movie_app/features/manage/screen/manage_statitics.dart';
+export 'package:movie_app/features/manage/screen/manage_user.dart';
+export 'package:movie_app/features/manage/widget/booking_detail.dart';
+export 'package:movie_app/features/manage/widget/statistic_month.dart';
+export 'package:movie_app/features/manage/widget/statistic_movie.dart';
+export 'package:movie_app/router/main_route.dart';
+
+// page
+export 'package:movie_app/Components/list_display.dart';
+export 'package:movie_app/config/api_handle.dart';
+export 'package:movie_app/config/api_link.dart';
+export 'package:movie_app/service/booking_service.dart';
+export 'package:movie_app/core/theme/gap.dart';
+export 'package:movie_app/models/month_stat.dart';
+export 'package:movie_app/features/manage/screen/add_showtime.dart';
+export 'package:movie_app/features/manage/widget/showtime_list_item.dart';
+export 'package:movie_app/models/showtime.dart';
+export 'package:movie_app/service/showtime_service.dart';
+export 'package:movie_app/models/hall.dart';
+export 'package:movie_app/service/hall_service.dart';
+export 'package:movie_app/Components/app_button.dart';
+export 'package:movie_app/Components/text_head.dart';
+export 'package:movie_app/features/Search/widgets/search_box.dart';
+export 'package:movie_app/models/movie.dart';
+export 'package:movie_app/features/manage/widget/booking_list_item.dart';
+export 'package:movie_app/models/booking.dart';
+export 'package:intl/intl.dart';
+export 'package:movie_app/Components/alert_dialog.dart';
+export 'package:movie_app/Components/showtime_helper.dart';
+export 'package:movie_app/core/image/image_app.dart';
+export 'package:movie_app/features/Checking/widgets/billing_details.dart';
+export 'package:movie_app/features/manage/widget/price_detail.dart';
+export 'package:movie_app/models/coupon.dart';
+export 'package:movie_app/models/seat.dart';
+export 'package:movie_app/service/coupon_service.dart';
+export 'package:movie_app/service/seat_service.dart';

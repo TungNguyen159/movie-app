@@ -1,16 +1,40 @@
 # movie_app
 
-A new Flutter project.
+Movie Booking App
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+🚀 Tính năng chính
 
-A few resources to get you started if this is your first Flutter project:
+    🎽️ Hiển thị danh sách phim từ TMDB API
+    🪑 Đặt chỗ theo sơ đồ ghế
+    ⭐ Đánh giá phim (1–5 sao) sau khi đã đặt và xem
+    📊 Thống kê doanh thu theo tháng (cho admin)
+    🔐 Đăng nhập/Đăng ký với Supabase Auth
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+💠 Công nghệ sử dụng
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+    Flutter 
+    Modular(routing)
+    Supabase (Auth, Database, Realtime)
+    TMDB API (dữ liệu phim)
+
+ # Chạy ứng dụng
+    Tải file app-release.apk để chạy chương trình trên máy android
+ # Cài đặt dependencies
+    - flutter clean 
+    - flutter pub get
+    - flutter run (chạy chương trình)
+ # Cập nhật Supabase
+    -Cấu hình các apiKeys, anonkeys tại D:\mobile\movie-app\.env hoặc D:\mobile\movie-app\assets\.env
+
+## Demo Tài khoản đăng nhập
+
+| Vai trò | Email                      | Mật khẩu    |
+|-------- |----------------------------|-------------|
+| Admin   | tung@gmail.com               123456      |
+| Staff   | nam@gmail.com                123456      |
+| Khách   | thanhtung150903@gmail.com    123456      |
+
+## Kiểm tra Quên mật khẩu
+    - Vui lòng sử dụng email thật để nhận email từ app

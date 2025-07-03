@@ -1,17 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_modular/flutter_modular.dart';
-import 'package:movie_app/Components/app_button.dart';
-import 'package:movie_app/Components/back_button.dart';
-import 'package:movie_app/config/api_handle.dart';
-import 'package:movie_app/config/api_link.dart';
-import 'package:movie_app/core/image/image_app.dart';
-import 'package:movie_app/core/theme/gap.dart';
-import 'package:movie_app/features/Checking/widgets/ticket_item.dart';
-import 'package:movie_app/models/movie_detail.dart';
-import 'package:movie_app/models/seat.dart';
-import 'package:movie_app/service/hall_service.dart';
-import 'package:movie_app/service/seat_service.dart';
-
+import 'package:movie_app/checking.dart';
 class CheckingScreen extends StatefulWidget {
   final Map movie;
   final int movieId;
@@ -28,20 +16,14 @@ class CheckingScreen extends StatefulWidget {
 class _CheckingScreenState extends State<CheckingScreen> {
   late final Future<MovieDetail> movieDetails;
   late List<Seat> selectedSeat;
-  // late String selectedDate;
-  late String selectedHallId;
   late String selectedShowtimeId;
-  late int totalPrice;
   final seatService = SeatService();
   @override
   void initState() {
     super.initState();
     movieDetails = ControllerApi().fetchMovieDetail(widget.movieId);
     selectedSeat = Modular.args.data['selectedSeat'];
-    //selectedDate = Modular.args.data['selectedDate'];
     selectedShowtimeId = Modular.args.data['selectedShowtimeId'];
-    selectedHallId = Modular.args.data['selectedHallId'];
-    totalPrice = Modular.args.data['totalPrice'];
   }
 
   @override
@@ -54,20 +36,7 @@ class _CheckingScreenState extends State<CheckingScreen> {
         }),
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: true,
-        title: FutureBuilder<MovieDetail>(
-          future: movieDetails,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Text("Loading..."); // Hiển thị khi đang tải
-            } else if (snapshot.hasError) {
-              return const Text("Error loading title"); // Lỗi
-            } else {
-              return Text(snapshot.data!.originalTitle, // In ra title
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold));
-            }
-          },
-        ),
+        title: const TextHead(text: "Checking"),
       ),
       body: Column(
         children: [
@@ -114,37 +83,6 @@ class _CheckingScreenState extends State<CheckingScreen> {
                         height: 50,
                         width: double.maxFinite,
                         color: const Color.fromARGB(255, 252, 205, 212),
-                        child: Padding(
-                          padding: const EdgeInsets.all(Gap.sM),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // TextHead(text: selectedDate),
-                              FutureBuilder(
-                                  future: HallService()
-                                      .fetchHallById(selectedHallId),
-                                  builder: (ctx, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return const CircularProgressIndicator(); // Hiển thị khi đang tải
-                                    } else if (!snapshot.hasData ||
-                                        snapshot.data!.isEmpty) {
-                                      return const Text(
-                                        "Không có dữ liệu",
-                                        style: TextStyle(color: Colors.grey),
-                                      ); // Trường hợp không có dữ liệu
-                                    } else {
-                                      final halls = snapshot.data!;
-                                      return Text(
-                                        halls['name'],
-                                        style: const TextStyle(
-                                            color: Colors.black, fontSize: 16),
-                                      );
-                                    }
-                                  })
-                            ],
-                          ),
-                        ),
                       ),
                       Container(
                         color: const Color.fromARGB(255, 252, 205, 212),
@@ -213,10 +151,9 @@ class _CheckingScreenState extends State<CheckingScreen> {
                     itemCount: selectedSeat.length,
                     itemBuilder: (ctx, index) {
                       Seat seat = selectedSeat[index]; // Lấy ghế hiện tại
-                      String price = seat.type == 'vip' ? '100000' : '50000';
                       return TicketItem(
-                        seatNumber: seat.seatid!, // Hiển thị số ghế
-                        price: price, // Hiển thị loại ghế (normal/vip)
+                        seatNumber: seat.seatnumber!, // Hiển thị số ghế
+                        price: seat.price!, // Hiển thị loại ghế (normal/vip)
                         type: seat.type,
                       );
                     },
@@ -233,24 +170,12 @@ class _CheckingScreenState extends State<CheckingScreen> {
               text: "Confirm",
               onPressed: () async {
                 try {
-                  // for (var seat in selectedSeat) {
-                  //   String price = seat.type == 'vip' ? '100000' : '50000';
-                  //   await seatService.insertseat(
-                  //     Seat(
-                  //       hallid: selectedHallId,
-                  //       showtimeId: selectedShowtimeId,
-                  //       seatNumber: seat.seatid,
-                  //       type: seat.type,
-                  //       price: price,
-                  //     ),
-                  //   );
-                  // }
-
                   // Nếu lưu thành công, chuyển hướng sang trang xác nhận
-                  Modular.to.pushNamed(
-                    "/main/detail/ticket/seat/payment",
+                  Modular.to.pushReplacementNamed(
+                    "/main/detail/ticket/payment",
                     arguments: {
                       "selectedSeat": selectedSeat,
+                      "selectedShowtimeId": selectedShowtimeId,
                     },
                   );
                 } catch (e) {

@@ -3,83 +3,70 @@ import 'package:movie_app/models/seat.dart';
 import 'package:intl/intl.dart'; // Thư viện để format tiền
 
 class BillingDetails extends StatelessWidget {
-  const BillingDetails({super.key, required this.selectedSeats});
+  BillingDetails({super.key, required this.selectedSeats});
 
   final List<Seat> selectedSeats;
 
-  // Tính tổng tiền
-  int calculateTotalPrice() {
-    return selectedSeats.fold(
-      0,
-      (sum, seat) => sum + (seat.type == 'vip' ? 100000 : 50000),
-    );
-  }
+  final currencyFormatter = NumberFormat("#,###", "vi_VN"); // Format tiền
 
   @override
   Widget build(BuildContext context) {
-    int totalPrice = calculateTotalPrice();
-    final currencyFormatter = NumberFormat("#,###", "vi_VN"); // Format tiền
-
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Chi tiết thanh toán',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 15),
-
-          // Header
-          const Row(
-            children: [
-              Expanded(child: _SummaryLabel(text: 'Số lượng')),
-              Expanded(child: _SummaryLabel(text: 'Loại ghế')),
-              Expanded(child: _SummaryLabel(text: 'Giá')),
-            ],
-          ),
-          const Divider(color: Colors.black),
-
-          // Danh sách ghế đã chọn
-          ...selectedSeats.map((seat) => Row(
-                children: [
-                  Expanded(
-                    child: _SummaryData(text: seat.seatid!),
-                  ),
-                  Expanded(
-                    child: _SummaryData(
-                        text: seat.type == 'vip' ? 'VIP' : 'Thường'),
-                  ),
-                  Expanded(
-                    child: _SummaryData(
-                      text:
-                          '${currencyFormatter.format(seat.type == 'vip' ? 100000 : 50000)} VNĐ',
-                    ),
-                  ),
-                ],
-              )),
-
-          const Divider(color: Colors.black, thickness: 1),
-          const SizedBox(height: 10),
-
-          // Tổng tiền
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              "Tổng tiền: ${currencyFormatter.format(totalPrice)} VNĐ",
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.redAccent,
-              ),
-            ),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Chi tiết đặt chỗ',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 15),
+
+            // Header
+            const Row(
+              children: [
+                Expanded(child: _SummaryLabel(text: 'Số ghế')),
+                Expanded(child: _SummaryLabel(text: 'Loại')),
+                Expanded(child: _SummaryLabel(text: 'Giá')),
+              ],
+            ),
+            const Divider(color: Colors.black),
+
+            // Danh sách ghế đã chọn
+            ...selectedSeats.map((seat) => Row(
+                  children: [
+                    Expanded(child: _SummaryData(text: seat.seatnumber!)),
+                    Expanded(
+                        child: _SummaryData(
+                            text: seat.type == 'vip' ? 'VIP' : 'Thường')),
+                    Expanded(
+                      child: _SummaryData(
+                        text: '${currencyFormatter.format(seat.price)} VNĐ',
+                      ),
+                    ),
+                  ],
+                )),
+
+            const Divider(color: Colors.black, thickness: 1),
+          ],
+        ),
       ),
     );
   }
@@ -116,6 +103,7 @@ class _SummaryData extends StatelessWidget {
       style: const TextStyle(
         fontSize: 16,
         color: Colors.grey,
+        fontWeight: FontWeight.bold
       ),
       textAlign: TextAlign.center,
     );

@@ -3,9 +3,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:movie_app/Components/text_field_app.dart';
 import 'package:movie_app/Components/text_head.dart';
 import 'package:movie_app/core/theme/gap.dart';
-import 'package:movie_app/service/auth_service.dart';
-import 'package:movie_app/service/user_service.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:movie_app/features/authentication/authen_controller.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -15,50 +13,23 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final authService = AuthService();
-  final userService = UserService();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _passwordConfirmController = TextEditingController();
-  final _nameController = TextEditingController();
-  void signup() async {
-    final email = _emailController.text;
-    final password = _passwordController.text;
-    final passwordConfirm = _passwordConfirmController.text;
-    final name = _nameController.text;
-    if (password != passwordConfirm) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("password not match"),
-        ),
-      );
-      return;
-    }
-    try {
-      final response =
-          await authService.signUpWithEmailPassword(email, password);
-      if (response.user != null) {
-        // save database user
-        await userService.insertUserProfile(name);
-        await Supabase.instance.client.auth.signOut();
-
+  final AuthenController controller = Modular.get<AuthenController>();
+  final _formKey = GlobalKey<FormState>();
+  void onSignupPressed() {
+    if (_formKey.currentState!.validate()) {
+      controller.signup(onSuccess: () {
         // Chuyển hướng đến trang đăng nhập
         Modular.to.pushReplacementNamed("/authen/signin");
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Sign up successful! Please log in."),
+            content: Text("Đăng ký thành công"),
           ),
         );
-      }
-    } catch (e) {
-      if (mounted) {
+      }, onError: (message) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Error: $e"),
-          ),
+          SnackBar(content: Text(message)),
         );
-      }
+      });
     }
   }
 
@@ -78,49 +49,90 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(Gap.mL),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextFieldApp(
-                        hintText: "Username",
-                        prefixIcon: const Icon(Icons.person),
-                        controller: _nameController,
-                      ),
-                      TextFieldApp(
-                        hintText: "email",
-                        prefixIcon: const Icon(Icons.mail),
-                        controller: _emailController,
-                      ),
-                      TextFieldApp(
-                        hintText: "Password",
-                        prefixIcon: const Icon(Icons.password),
-                        obscureText: true,
-                        controller: _passwordController,
-                      ),
-                      TextFieldApp(
-                        hintText: "Confirm password",
-                        prefixIcon: const Icon(Icons.password),
-                        obscureText: true,
-                        controller: _passwordConfirmController,
-                      ),
-                      Gap.mdHeight,
-                      ElevatedButton(
-                        onPressed: signup,
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(300, 60),
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          elevation: 5,
-                          padding: const EdgeInsets.symmetric(vertical: Gap.sM),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextFieldApp(
+                          hintText: "Username",
+                          prefixIcon: const Icon(Icons.person),
+                          controller: controller.nameController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Username cannot be empty";
+                            }
+                            return null;
+                          },
+                          textInputAction: TextInputAction.next,
                         ),
-                        child: TextHead(
-                          text: "Sign up",
-                          textStyle: TextStyle(
-                            color: Theme.of(context).colorScheme.onTertiary,
-                            fontSize: 18,
+                        Gap.mLHeight,
+                        TextFieldApp(
+                          hintText: "email",
+                          prefixIcon: const Icon(Icons.mail),
+                          controller: controller.emailController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Email cannot be empty";
+                            }
+                            if (!RegExp(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
+                                    .hasMatch(value) ||
+                                !value.endsWith("@gmail.com")) {
+                              return "Invalid email format";
+                            }
+                            return null;
+                          },
+                          textInputAction: TextInputAction.next,
+                        ),
+                        Gap.mLHeight,
+                        TextFieldApp(
+                          hintText: "Password",
+                          prefixIcon: const Icon(Icons.lock),
+                          obscureText: true,
+                          controller: controller.passwordController,
+                          validator: (value) {
+                            if (value == null || value.length < 6) {
+                              return "Password must be at least 6 characters";
+                            }
+                            return null;
+                          },
+                          textInputAction: TextInputAction.next,
+                        ),
+                        Gap.mLHeight,
+                        TextFieldApp(
+                          hintText: "Confirm password",
+                          prefixIcon: const Icon(Icons.lock),
+                          obscureText: true,
+                          controller: controller.passwordConfirmController,
+                          validator: (value) {
+                            if (value != controller.passwordController.text) {
+                              return "Passwords do not match";
+                            }
+                            return null;
+                          },
+                          textInputAction: TextInputAction.done,
+                        ),
+                        Gap.mdHeight,
+                        ElevatedButton(
+                          onPressed: () => onSignupPressed(),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(300, 60),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            elevation: 5,
+                            padding:
+                                const EdgeInsets.symmetric(vertical: Gap.sM),
+                          ),
+                          child: TextHead(
+                            text: "Sign up",
+                            textStyle: TextStyle(
+                              color: Theme.of(context).colorScheme.onTertiary,
+                              fontSize: 18,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 30),

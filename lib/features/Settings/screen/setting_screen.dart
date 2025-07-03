@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:movie_app/Components/alert_dialog.dart';
 import 'package:movie_app/Components/app_button.dart';
 import 'package:movie_app/Components/text_head.dart';
 import 'package:movie_app/core/theme/gap.dart';
 import 'package:movie_app/features/Settings/widgets/custom_profile.dart';
+import 'package:movie_app/models/user.dart';
 import 'package:movie_app/service/auth_service.dart';
 import 'package:movie_app/service/user_service.dart';
 
@@ -20,9 +22,20 @@ class _SettingScreenState extends State<SettingScreen> {
   final userService = UserService();
 
   void _logout() async {
-    await authService.signOut();
-    if (mounted) {
-      Modular.to.navigate("/authen");
+    final result = await showDialog(
+      context: context,
+      builder: (BuildContext context) => const CustomAlertDialog(
+        title: "Xác nhận",
+        description: "Bạn có chắc chắn muốn đăng xuất?",
+        confirmText: "Đăng xuất",
+        cancelText: "Huỷ",
+      ),
+    );
+    if (result == true) {
+      await authService.signOut();
+      if (mounted) {
+        Modular.to.navigate("/authen");
+      }
     }
   }
 
@@ -40,14 +53,9 @@ class _SettingScreenState extends State<SettingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const CircleAvatar(
-              backgroundImage: NetworkImage(
-                  "https://static.vecteezy.com/system/resources/thumbnails/007/209/020/small_2x/close-up-shot-of-happy-dark-skinned-afro-american-woman-laughs-positively-being-in-good-mood-dressed-in-black-casual-clothes-isolated-on-grey-background-human-emotions-and-feeligs-concept-photo.jpg"),
-              radius: 70,
-            ),
             const SizedBox(height: Gap.sM),
-            FutureBuilder<Map<String, dynamic>?>(
-              future: userService.getUserProfile(),
+            StreamBuilder<Users?>(
+              stream: userService.streamUser,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -58,24 +66,37 @@ class _SettingScreenState extends State<SettingScreen> {
                           "Error: ${snapshot.error ?? "Failed to load profile"}"));
                 }
                 final userProfile = snapshot.data!;
-                final role = userProfile['role'];
+                final role = userProfile.role;
                 return Column(
                   children: [
+                    CircleAvatar(
+                      radius: 70,
+                      backgroundImage: (userProfile.imageuser == null ||
+                              userProfile.imageuser!.isEmpty)
+                          ? const AssetImage("assets/no_image.png")
+                              as ImageProvider
+                          : NetworkImage(userProfile.imageuser!),
+                    ),
+                    Gap.smHeight,
                     TextHead(
-                      text: userProfile['name'],
+                      text: userProfile.name,
                       textStyle: Theme.of(context)
                           .textTheme
-                          .bodyMedium!
+                          .titleLarge!
                           .copyWith(fontWeight: FontWeight.bold),
                     ),
                     Gap.lgHeight,
-                    if (role == "customer")
-                      const CustomProfile()
-                    else
+                    // Hiển thị profile cho mọi role
+                    CustomProfile(user: userProfile),
+
+                    // Nếu là admin hoặc nhân viên thì có thêm mục "Manage"
+                    if (role == "admin" || role == "staff")
                       ListTile(
                         leading: const Icon(Icons.manage_accounts),
-                        title: Text("Manage",
-                            style: Theme.of(context).textTheme.bodyMedium),
+                        title: Text(
+                          "Manage",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
                         trailing: const Icon(Icons.arrow_forward_ios),
                         onTap: () {
                           Modular.to.pushNamed("/manage/");
@@ -84,27 +105,6 @@ class _SettingScreenState extends State<SettingScreen> {
                   ],
                 );
               },
-            ),
-            Gap.lXHeight,
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextHead(
-                text: 'Settings',
-                textStyle: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-            Gap.mLHeight,
-            ListTile(
-              leading: const Icon(Icons.palette_outlined),
-              title:
-                  Text("Theme", style: Theme.of(context).textTheme.bodyMedium),
-              trailing: Switch(
-                value: isSwitched,
-                onChanged: (value) => setState(() => isSwitched = value),
-              ),
             ),
             const Spacer(),
             Align(

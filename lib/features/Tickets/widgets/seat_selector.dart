@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:movie_app/service/hall_service.dart';
+import 'package:movie_app/service/seat_service.dart';
+import 'package:movie_app/service/showtime_service.dart';
 import 'package:movie_app/models/seat.dart';
 
 class SeatBookingScreen extends StatefulWidget {
   final Function(List<Seat>, int) onSeatSelected;
   final String showtimeId;
-
+  final String hallid;
   const SeatBookingScreen({
     super.key,
     required this.onSeatSelected,
     required this.showtimeId,
+    required this.hallid,
   });
 
   @override
@@ -17,14 +20,13 @@ class SeatBookingScreen extends StatefulWidget {
 }
 
 class _SeatBookingScreenState extends State<SeatBookingScreen> {
-  final supabase = Supabase.instance.client;
+  final hallService = HallService();
+  final showtimeService = ShowtimeService();
+  final seatService = SeatService();
   List<Seat> seats = [];
   List<Seat> selectedSeats = [];
   int totalPrice = 0;
-
-  final int normalPrice = 50000;
-  final int vipPrice = 100000;
-
+  int? columns;
   @override
   void initState() {
     super.initState();
@@ -32,30 +34,29 @@ class _SeatBookingScreenState extends State<SeatBookingScreen> {
   }
 
   Future<void> _fetchSeats() async {
-    // Tạo danh sách 49 ghế, trong đó 35 ghế thường và 14 ghế VIP
-    List<Seat> fixedSeats = List.generate(64, (index) {
-      return Seat(
-        seatid: 'S${index + 1}',
-        status: 'available',
-        type: index < 40 ? 'normal' : 'vip',
-      );
-    });
+    final hallresponse = await hallService.fetchHallById(widget.hallid);
+    final showtimeresponse =
+        await showtimeService.fetchbyshowtimeid(widget.showtimeId);
+    int rows = hallresponse.row;
+    columns = hallresponse.column;
+    int basePrices = showtimeresponse.price;
+    // lấy danh sách ghế
+    List<Seat> fixedSeats = [];
+    for (int row = 0; row < rows; row++) {
+      for (int col = 0; col < columns!; col++) {
+        String seatNumber = '${String.fromCharCode(65 + row)}${col + 1}';
+        bool isNormal = row < (rows * 0.6);
+        String type = isNormal ? 'normal' : 'vip';
+        int price = isNormal ? basePrices : (basePrices * 1.5).toInt();
 
-    // Lấy danh sách ghế đã được đặt từ Supabase
-    final response = await supabase
-        .from('seats')
-        .select()
-        .eq('showtime_id', widget.showtimeId);
-    if (response.isNotEmpty) {
-      for (var bookedSeat in response) {
-        String seatId = bookedSeat['seatnumber'];
-        int seatIndex = fixedSeats.indexWhere((seat) => seat.seatid == seatId);
-        if (seatIndex != -1) {
-          fixedSeats[seatIndex].status = 'unavailable'; // Ghế đã được đặt trước
-        }
+        fixedSeats.add(Seat(
+          seatnumber: seatNumber,
+          status: 'available',
+          type: type,
+          price: price,
+        ));
       }
     }
-
     setState(() {
       seats = fixedSeats;
     });
@@ -67,16 +68,16 @@ class _SeatBookingScreenState extends State<SeatBookingScreen> {
         if (selectedSeats.contains(seat)) {
           selectedSeats.remove(seat);
           seat.status = 'available';
-          totalPrice -= seat.type == 'vip' ? vipPrice : normalPrice;
+          totalPrice -= seat.price!;
         } else {
           selectedSeats.add(seat);
           seat.status = 'booked';
-          totalPrice += seat.type == 'vip' ? vipPrice : normalPrice;
+          totalPrice += seat.price!;
         }
       } else if (seat.status == 'booked') {
         seat.status = 'available';
         selectedSeats.remove(seat);
-        totalPrice -= seat.type == 'vip' ? vipPrice : normalPrice;
+        totalPrice -= seat.price!;
       }
 
       widget.onSeatSelected(selectedSeats, totalPrice);
@@ -98,18 +99,42 @@ class _SeatBookingScreenState extends State<SeatBookingScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 8, // 7 ghế mỗi hàng
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                ),
-                itemCount: seats.length,
-                itemBuilder: (context, index) {
-                  final seat = seats[index];
-                  return _buildSeatWidget(seat);
-                },
-              ),
+              child: columns != null
+                  ? StreamBuilder<List<Seat>>(
+                      stream: seatService.getseatbyshowtime(widget.showtimeId),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                        final bookedSeats = snapshot.data!;
+                        final updatedSeats = seats;
+                        for (var bookedSeat in bookedSeats) {
+                          String seatNumber = bookedSeat.seatnumber!;
+                          int seatIndex = updatedSeats.indexWhere(
+                              (seat) => seat.seatnumber == seatNumber);
+                          if (seatIndex != -1) {
+                            updatedSeats[seatIndex].status =
+                                'unavailable'; // Ghế đã được đặt trước
+                          }
+                        }
+                        return GridView.builder(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: columns!,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
+                          itemCount: updatedSeats.length,
+                          itemBuilder: (context, index) {
+                            final seat = updatedSeats[index];
+                            return _buildSeatWidget(seat);
+                          },
+                        );
+                      })
+                  : const Center(
+                      child: CircularProgressIndicator(),
+                    ),
             ),
           ),
           const SizedBox(height: 16),
@@ -143,8 +168,8 @@ class _SeatBookingScreenState extends State<SeatBookingScreen> {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
-          seat.seatid!,
-          style: const TextStyle(color: Colors.white),
+          seat.seatnumber!,
+          style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
         ),
       ),
     );

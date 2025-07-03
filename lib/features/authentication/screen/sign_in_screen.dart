@@ -3,7 +3,7 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:movie_app/Components/text_field_app.dart';
 import 'package:movie_app/Components/text_head.dart';
 import 'package:movie_app/core/theme/gap.dart';
-import 'package:movie_app/service/auth_service.dart';
+import 'package:movie_app/features/authentication/authen_controller.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -13,37 +13,20 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  final authService = AuthService();
-
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  void login() async {
-    final email = _emailController.text;
-    final password = _passwordController.text;
-
-    try {
-      final response =
-          await authService.signInWithEmailPassword(email, password);
-      if (response.user != null) {
+  final AuthenController controller = Modular.get<AuthenController>();
+  final _formKey = GlobalKey<FormState>();
+  void onLoginPressed() {
+    if (_formKey.currentState!.validate()) {
+      controller.login(onSuccess: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Đăng nhập thành công")),
+        );
         Modular.to.navigate("/");
+      }, onError: (message) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Login sucsessful !")),
+          SnackBar(content: Text(message)),
         );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text("Login failed. Please check your credentials.")),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("errror :$e"),
-          ),
-        );
-      }
+      });
     }
   }
 
@@ -63,46 +46,66 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(Gap.mL),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextFieldApp(
-                        hintText: "Email",
-                        prefixIcon: const Icon(Icons.mail),
-                        controller: _emailController,
-                      ),
-                      TextFieldApp(
-                        hintText: "Password",
-                        prefixIcon: const Icon(Icons.password),
-                        obscureText: true,
-                        controller: _passwordController,
-                      ),
-                      Gap.mdHeight,
-                      ElevatedButton(
-                        onPressed: login,
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(300, 60),
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          elevation: 5,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextFieldApp(
+                          hintText: "Email",
+                          prefixIcon: const Icon(Icons.mail),
+                          controller: controller.emailSIController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Email cannot be empty";
+                            } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
+                                .hasMatch(value)) {
+                              return "Invalid email format";
+                            }
+                            return null;
+                          },
+                          textInputAction: TextInputAction.next,
                         ),
-                        child: TextHead(
-                          text: "login",
-                          textStyle: TextStyle(
-                            color: Theme.of(context).colorScheme.onTertiary,
-                            fontSize: 18,
+                        Gap.mLHeight,
+                        TextFieldApp(
+                          hintText: "Password",
+                          prefixIcon: const Icon(Icons.lock),
+                          obscureText: true,
+                          controller: controller.passwordSIController,
+                          validator: (value) {
+                            if (value == null || value.length < 6) {
+                              return "Password cannot be empty";
+                            }
+                            return null;
+                          },
+                          textInputAction: TextInputAction.done,
+                        ),
+                        Gap.mdHeight,
+                        ElevatedButton(
+                          onPressed: () => onLoginPressed(),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(300, 60),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            elevation: 5,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: TextHead(
+                            text: "login",
+                            textStyle: TextStyle(
+                              color: Theme.of(context).colorScheme.onTertiary,
+                              fontSize: 18,
+                            ),
                           ),
                         ),
-                      ),
-                      Gap.mLHeight,
-                      TextHead(
-                        text: "Forgot password?",
-                        textStyle: TextStyle(
-                            fontSize: 18,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                        Gap.mLHeight,
+                        TextButton(
+                            onPressed: () {
+                              Modular.to.pushNamed("/authen/forgot");
+                            },
+                            child: const Text('Forgot password'))
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 50),
